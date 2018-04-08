@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ESPCompanion</string>
+    <string name="main_msg_text">Please scan the QR code provided by the vendor of the IoT device</string>
+    <string name="scan_qrcode">Scan QRcode</string>
+    <string name="qrcode_result_text_ok">The Access point credentials were successfully scanned. connecting to the network</string>
+    <string name="qrcode_result_text_error">The QR code information was incorrect. Please scan again.</string>
+</resources>
