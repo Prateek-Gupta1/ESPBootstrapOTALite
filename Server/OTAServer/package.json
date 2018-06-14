@@ -1,0 +1,41 @@
+{
+  "name": "otaserver",
+  "version": "0.0.0",
+  "description": "A fully funtional web server to manage Over the Air firmware updates of Arduino based IoT devices.",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "bcrypt": "^2.0.1",
+    "body-parser": "^1.18.3",
+    "colors": "^1.3.0",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "ejs": "^2.6.1",
+    "express": "~4.16.0",
+    "http-errors": "~1.6.2",
+    "joi": "^13.3.0",
+    "joi-phone-number": "^2.0.8",
+    "lodash": "^4.17.10",
+    "mime": "^2.3.1",
+    "mongodb": "^3.0.7",
+    "mongoose": "^5.1.4",
+    "mongoose-auto-increment": "^5.0.1",
+    "morgan": "~1.9.0",
+    "multer": "^1.3.0",
+    "validator": "^10.3.0"
+  },
+  "author": "Prateek Gupta",
+  "homepage": "https://prateek-gupta1.github.io",
+  "license": "MIT",
+  "keywords": [
+    "IoT",
+    "express",
+    "mongodb",
+    "mongoose",
+    "nodejs",
+    "arduino",
+    "security"
+  ]
+}
