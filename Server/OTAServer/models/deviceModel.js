@@ -2,7 +2,6 @@
 
 const mongoose = require('mongoose');
 const validator = require('validator');
-// var db = require('../db').get();
 
 const collectionName = 'Devices';
 

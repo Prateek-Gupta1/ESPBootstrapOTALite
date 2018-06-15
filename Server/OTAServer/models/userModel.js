@@ -11,7 +11,6 @@ const SALT_WORK_FACTOR = config.salt_work_factor;
 
 
 const userSchema = new mongoose.Schema({
-  // _id : mongoose.Schema.Types.ObjectId,
   name: {
     type: String,
     required: true,
@@ -31,7 +30,7 @@ const userSchema = new mongoose.Schema({
       validator: (v, cb) => {
         cb(validator.isEmail(v));
       },
-      message: '{VALUE} is not a valid email',
+      message: 'Not a valid email',
     },
   },
   phone: {
