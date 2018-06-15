@@ -1,159 +1,142 @@
-'use strict'
 
-var mongoose 		= require('mongoose');
-var validator 		= require('validator');
-var autoIncrement 	= require('mongoose-auto-increment');
 
-var collectionName = 'Firmwares';
+const mongoose 		= require('mongoose');
+const validator 		= require('validator');
+const autoIncrement 	= require('mongoose-auto-increment');
+
+const collectionName = 'Firmwares';
 
 const TAG = 'firmwareModel';
 
 autoIncrement.initialize(mongoose.connection);
 
-let firmwareSchema = new mongoose.Schema({
-	//_id : mongoose.Schema.Types.ObjectId,
-	version_code : {
-		type : Number,
-	},
-	version_name : {
-		type : String,
-		required : true,
-		validate : {
-			isAsync: true,
-     		validator : (v, cb) => {
-				 //console.log('Checking regex match : ' + validator.matches(v, /^\d{1,2}\.\d{1,2}\.\d{1,2}$/))
-				cb(validator.matches(v, /^\d{1,2}\.\d{1,2}\.\d{1,2}$/));
-			},
-			messsage : `{VALUE} is incorrect pattern of version name. Should be of type 1.1.3 or 10.3.45`
-		}
-	},
-	name : {
-		type : String,
-		required : true,
-		lowercase : true,
-		maxlength : 40,
-		trim : true,
-	},
-	description : {
-		type : String,
-		maxlength : 200,
-		trim : true
-	},
-	publishedOn : {
-		type : Date,
-		default : Date.now
-	},
-	device : {
-		type : mongoose.Schema.Types.ObjectId,
-		ref : 'devices'
-	},
-	firmware_image : {
-		type : mongoose.Schema.Types.ObjectId,
-		ref : 'firmwareImages'
-	},
-	status : {
-		type : String,
-		enum : ['Active', 'Inactive'],
-		index : true,
-		default : 'Active'
-	}
+const firmwareSchema = new mongoose.Schema({
+  // _id : mongoose.Schema.Types.ObjectId,
+  version_code: {
+    type: Number,
+  },
+  version_name: {
+    type: String,
+    required: true,
+    validate: {
+      isAsync: true,
+     		validator: (v, cb) => {
+				 // console.log('Checking regex match : ' + validator.matches(v, /^\d{1,2}\.\d{1,2}\.\d{1,2}$/))
+        cb(validator.matches(v, /^\d{1,2}\.\d{1,2}\.\d{1,2}$/));
+      },
+      messsage: '{VALUE} is incorrect pattern of version name. Should be of type 1.1.3 or 10.3.45',
+    },
+  },
+  name: {
+    type: String,
+    required: true,
+    lowercase: true,
+    maxlength: 40,
+    trim: true,
+  },
+  description: {
+    type: String,
+    maxlength: 200,
+    trim: true,
+  },
+  publishedOn: {
+    type: Date,
+    default: Date.now,
+  },
+  device: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'devices',
+  },
+  firmware_image: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'firmwareImages',
+  },
+  status: {
+    type: String,
+    enum: ['Active', 'Inactive'],
+    index: true,
+    default: 'Active',
+  },
 });
 
-firmwareSchema.methods.publish = function(){
-	
-	return new Promise((resolve, reject) => {
-	
-		//try to save the firmware info in collection
-		this.save(function(err, result){
-			if(err) return reject(err);
+firmwareSchema.methods.publish = function () {
+  return new Promise((resolve, reject) => {
+    // try to save the firmware info in collection
+    this.save((err, result) => {
+      if (err) return reject(err);
 
-			//If everything goes well resolve and send firmware object
-			console.log(TAG + ' ' + result);
-			resolve(result);
-		});
-	});
-}
+      // If everything goes well resolve and send firmware object
+      console.log(`${TAG} ${result}`);
+      resolve(result);
+    });
+  });
+};
 
-firmwareSchema.statics.getAllForDevice = function(deviceId){
+firmwareSchema.statics.getAllForDevice = function (deviceId) {
+  return new Promise((resolve, reject) => {
+    if (!deviceId) return reject({ error: 'device id provided is Null' });
 
-	return new Promise((resolve, reject) => {
+    this.find({ device: deviceId }, (err, result) => {
+      if (err) return reject(err);
 
-		if(!deviceId) return reject({error : 'device id provided is Null'});
-
-		this.find({device : deviceId}, function(err, result){
-			if(err) return reject(err);
-
-			console.log(TAG + " " + result);
-			resolve(result);
-		});
-	});
-}
+      console.log(`${TAG} ${result}`);
+      resolve(result);
+    });
+  });
+};
 
 
-firmwareSchema.methods.updateInfo = function(values){
+firmwareSchema.methods.updateInfo = function (values) {
+  const firmware = this;
+  // assert(this === )
+  return new Promise((resolve, reject) => {
+    if (!values) return reject({ error: 'values object provided is Null' });
 
-	const firmware = this;
-	//assert(this === )
-	return new Promise((resolve, reject) => {
+    firmware.findOneAndUpdate(
+      { _id: firmware._id },
+      values,
+      { new: true, runValidators: true },
+      (err, result) => {
+        if (err) return reject(err);
+        console.log(`${TAG} ${result}`);
+        resolve(result);
+      },
+    );
+  });
+};
 
-		if(!values) return reject({error : 'values object provided is Null'});
+firmwareSchema.statics.changeActiveFirmwareToInactiveForDevice = function (deviceId) {
+  return new Promise((resolve, reject) => {
+    this.findOneAndUpdate({ device: deviceId, status: 'Active' }, { status: 'Inactive' }, { new: true }, (err, result) => {
+      if (err) {
+        console, log(`${TAG} ${err}`);
+        reject(err);
+      }
+      resolve(result);
+    });
+  });
+};
 
-		firmware.findOneAndUpdate( 
-			{_id : firmware._id}, 
-			values, 
-			{new : true, runValidators : true}, 
-			function(err, result){
-				if(err) return reject(err);
-				console.log(TAG + " " + result);
-				resolve(result);
-			});
-	});
+firmwareSchema.statics.getActiveFirmware = function (deviceId) {
+  const firmware = this;
+  // assert(this === )
+  return new Promise((resolve, reject) => {
+    if (!deviceId) return reject({ error: 'device id provided is Null' });
 
-}
+    this.find({ device: deviceId, status: 'Active' }, (err, result) => {
+      if (err) return reject(err);
 
-firmwareSchema.statics.changeActiveFirmwareToInactiveForDevice = function(deviceId){
-	return new Promise((resolve, reject) => {
+      console.log(`${TAG} ${result}`);
+      resolve(result);
+    });
+  });
+};
 
-		this.findOneAndUpdate({ device : deviceId, status : 'Active' }, {status : 'Inactive'}, { new : true }, function(err, result){
-			if(err){
-				console,log(TAG + ' ' + err); 
-				reject(err)
-			};
-			resolve(result);
-		});
-	});
-}
-
-firmwareSchema.statics.getActiveFirmware = function(deviceId){
-	
-	const firmware = this;
-	//assert(this === )
-	return new Promise((resolve, reject) => {
-
-		if(!deviceId) return reject({error : 'device id provided is Null'});
-
-		this.find({device : deviceId, status : 'Active'}, function(err, result){
-			if(err) return reject(err);
-
-			console.log(TAG + " " + result);
-			resolve(result);
-		});
-	});
-}
-
-firmwareSchema.plugin(autoIncrement.plugin, { model : collectionName, field : 'version_code'});
+firmwareSchema.plugin(autoIncrement.plugin, { model: collectionName, field: 'version_code' });
 
 module.exports = mongoose.model(collectionName, firmwareSchema);
 
-//module.exports.Archive = mongoose.model('ArchivedFirmware', firmwareSchema);
-
-
-
-
-
-
-
-
+// module.exports.Archive = mongoose.model('ArchivedFirmware', firmwareSchema);
 
 
 // var db = require('../db').get();
@@ -197,11 +180,11 @@ module.exports = mongoose.model(collectionName, firmwareSchema);
 // }
 
 // module.exports.listAllForDeviceId = function(deviceID, onComplete){
-	
+
 // 	if(deviceID){
 
 // 		try{
-			
+
 // 			db.collection(collection)
 // 			  .find({ device_id : deviceID}, { _id : 0 })
 // 			  .toArray(onComplete);
@@ -214,6 +197,4 @@ module.exports = mongoose.model(collectionName, firmwareSchema);
 // 		onComplete("Could not fetch firmwares. Error : Input null", null);
 // 	}
 // }
-
-
 
