@@ -6,10 +6,10 @@ const router = express.Router();
 const multer = require('multer');
 const mime = require('mime');
 const fs = require('fs');
-const Firmware = require('../models/firmwareModel');
-const FirmwareImage = require('../models/firmwareImageModel');
 const Device = require('../models/deviceModel');
-// var config = require('../config/config');
+var FirmwareManager = require('../services/firmware');
+
+const manager = new FirmwareManager();
 
 // Defines constraints on the uploaded file
 const limits = {
@@ -52,71 +52,62 @@ router.post('/publish/device/:id', (req, res, next) => {
       res.status(400).send({ message: err });
       return router;
     }
-
+    const filepath = `public/uploads/${req.file.filename}`;
+    
     // Begin saving firmware info and binary file in MongoDB collection.
     try {
-      // Read the stored file first.
-      const filepath = `public/uploads/${req.file.filename}`;
+      let imageId = '';
+      // Read the binary from temporary location.
       const fmwBinary = fs.readFileSync(filepath);
 
-      // Create Firmware image schema object
-      const imageFile = new FirmwareImage({
-        image_file: fmwBinary,
+      // Persist the binary. 
+      manager.storeFirmwareImage(fmwBinary)
+      .then(id => {
+
+        // Delete the binary from temporary location.
+        fs.unlinkSync(filepath);
+
+        // Get and store ID of the newly stored binary.
+        imageId = id;
+
+        // Archive the previously active firmware.
+        manager.archivePreviousFirmwareOfDevice(req.params.id);
+      })
+      .then(() => {
+        // Extract firmware info.
+        const firmwareInfo = {
+          versionName: req.body.versionName,
+          fmwName: req.body.fmwName,
+          description: req.body.description,
+          deviceId: req.params.id,
+          imgId: imageId.id,
+        };
+
+        // Store the firmware info in DB.
+        manager.publishFirmwareInfo(firmwareInfo)
+      })
+      .then(() => {
+        // Update device status to signal that a new firmware is available.
+        Device.updateStatus(req.params.id, 'Updatable')
+      })
+      .then(() => {
+        // All steps passed, send user success message.
+        res.status(200).send({ message: 'Firmware published successfully.' });
+      })
+      .catch( (error) => {
+        if (error.name === 'ValidationError') {
+          res.status(400).send(er);
+        }else{
+          next(error);
+        }
       });
-
-      // Try to save the binary in mongo collections.
-      imageFile.storeImage()
-        .then((imageId) => {
-        // Firmware image was stored successfully, delete file from uploads folder.
-          fs.unlinkSync(filepath);
-
-          // Get active firmware of the device and change its status to Inactive.
-          Firmware.changeActiveFirmwareToInactiveForDevice(req.params.id)
-            .then(() => {
-              // Create new firmware info object
-              const firmwareInfo = new Firmware({
-                version_name: req.body.versionName,
-                name: req.body.fmwName,
-                description: req.body.description,
-                device: req.params.id,
-                firmware_image: imageId.id,
-              });
-
-                // Store the firmware info
-              firmwareInfo.publish()
-                .then(() => {
-                  // Changing device status to signal that an update is available.
-                  Device.updateStatus(req.params.id, 'Updatable')
-                    .then(() => {
-                      res.status(200).send({ message: 'Firmware published successfully.' });
-                    })
-                    .catch((er) => { // Update Status
-                      next(er);
-                    });
-                })
-                .catch((er) => { // Publish firmware
-                  if (er.name === 'ValidationError') {
-                    res.status(400).send(er);
-                  }
-                  // Unknown error, so pass it on.
-                  next(er);
-                });
-            })
-            .catch((er) => { // Change firmware to inactive
-            // Unknown error, so pass it on.
-              next(er);
-            });
-        })
-        .catch((er) => { // Store firmware Image
-        // Failed to store firmware image file, so pass the error on.
-          next(er);
-        });
     } catch (er) { // End of try block
       next(er);
     }
     return router;
   });
 });
+
 
 router.get('/active/device/:id', (req, res, next) => {
   const deviceId = req.params.id;
@@ -126,7 +117,7 @@ router.get('/active/device/:id', (req, res, next) => {
     return router;
   }
 
-  Firmware.getActiveFirmware(deviceId)
+  manager.getActiveFirmwareForDevice(deviceId)
     .then((result) => {
       if (!result) {
         res.status(400).send({ error: 'Firmware is not uploaded on the device yet.' });
@@ -150,7 +141,7 @@ router.get('/all/device/:id', (req, res, next) => {
     return router;
   }
 
-  Firmware.getAllForDevice(deviceId)
+  manager.listAllFirmwaresForDevice(deviceId)
     .then((result) => {
       if (result) {
         res.status(200).send(result);
@@ -173,7 +164,7 @@ router.get('/imagefile/:id', (req, res, next) => {
     return router;
   }
 
-  FirmwareImage.retrieveImage(imageId)
+  manager.getFirmwareBinary(imageId)
     .then((result) => {
       res.status(200).send(result.image_file);
     })

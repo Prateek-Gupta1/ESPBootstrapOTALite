@@ -7,7 +7,6 @@ const TAG = 'FirmwareImagesModel';
 const collectionName = 'FirmwareImages';
 
 const firmwareImageSchema = new mongoose.Schema({
-  // _id : mongoose.Schema.Types.ObjectId,
   image_file: {
     type: Buffer,
     required: true,

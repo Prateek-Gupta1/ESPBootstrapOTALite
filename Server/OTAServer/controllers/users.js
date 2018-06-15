@@ -1,21 +1,22 @@
 
 
 const express = require('express');
+const UserManager = require('../services/user');
 
 const router = express.Router();
-const User = require('../models/userModel');
+const manager = new UserManager();
 const UserValidation = require('../middlewares/validations/userValidation');
 
 /**/
 router.post('/register', UserValidation.validateUserRegistrationData, (req, res, next) => {
-  const user = new User({
+  const user = {
     name: req.body.name,
     email: req.body.email,
     phone: req.body.phone,
     password: req.body.password,
-  });
+  };
 
-  user.register()
+  manager.register(user)
     .then(() => {
       res.status(200).send('Registered successfully.');
     }).catch((err) => {
@@ -32,7 +33,7 @@ router.post('/register', UserValidation.validateUserRegistrationData, (req, res,
 
 
 router.post('/login', UserValidation.validateUserLoginData, (req, res, next) => {
-  User.authenticate(req.body.email, req.body.password)
+  manager.login(req.body.email, req.body.password)
     .then((result) => {
       if (result) { res.status(200).send({ success: 'Login successful.' }); } else { res.status(401).send({ error: 'Invalid credentials.' }); }
     }).catch((err) => {
