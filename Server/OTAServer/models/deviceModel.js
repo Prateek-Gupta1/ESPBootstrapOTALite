@@ -5,7 +5,7 @@ const validator = require('validator');
 
 const collectionName = 'Devices';
 
-const TAG = 'deviceModel';
+//const TAG = 'deviceModel';
 
 const deviceSchema = new mongoose.Schema({
   mac_address: {
@@ -16,7 +16,7 @@ const deviceSchema = new mongoose.Schema({
       validator(macAddress) {
         return validator.isMACAddress(macAddress);
       },
-      message: 'Invalid macaddress',
+      message: 'Invalid mac address',
     },
   },
   name: {
@@ -29,11 +29,12 @@ const deviceSchema = new mongoose.Schema({
   description: {
     type: String,
     maxlength: 200,
+    trim: true,
+    default: 'No description provided.',
   },
   model: {
     type: String,
     maxlength: 40,
-    required: false,
     trim: true,
   },
   registeredOn: {
@@ -48,20 +49,17 @@ const deviceSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'users',
+    required: true,
   },
 });
 
 deviceSchema.methods.register = function () {
   // Return promise
   return new Promise((resolve, reject) => {
-    // if(!device) return reject({error : 'Invalid device object'});
-
     // try to save the device in collection
     this.save((err, object) => {
       if (err) return reject(err);
-
       // If everything goes well resolve and send device object
-      console.log(`${TAG} ${object}`);
       resolve(object);
     });
   });
@@ -70,12 +68,10 @@ deviceSchema.methods.register = function () {
 deviceSchema.statics.fetchWithDeviceId = function (deviceId) {
   const device = this;
   return new Promise((resolve, reject) => {
-    if (!deviceId) return reject({ error: 'device id provided is Null' });
+    if (!deviceId) return reject({ error: 'device id must be provided.' });
 
     device.findById(deviceId, (err, result) => {
       if (err) return reject(err);
-
-      console.log(`${TAG} ${result}`);
       resolve(result);
     });
   });
@@ -85,12 +81,10 @@ deviceSchema.statics.fetchWithMacAddress = function (mac) {
   const device = this;
   // assert(this === )
   return new Promise((resolve, reject) => {
-    if (!mac) return reject({ error: 'mac address provided is Null' });
+    if (!mac || !validator.isMACAddress(mac)) return reject({ error: 'something is wrong with mac address provided.' });
 
     device.findOne({ mac_address: mac }, (err, result) => {
       if (err) return reject(err);
-
-      console.log(`${TAG} ${result}`);
       resolve(result);
     });
   });
@@ -100,25 +94,26 @@ deviceSchema.statics.fetchAllMappedToUserId = function (userId) {
   const device = this;
   // assert(this === )
   return new Promise((resolve, reject) => {
-    if (!userId) return reject({ error: 'user id provided is Null' });
+    if (!userId) return reject({ error: 'user id is not provided.' });
 
     device.find({ user: userId }, (err, result) => {
       if (err) return reject(err);
-
-      console.log(`${TAG} ${result}`);
       resolve(result);
     });
   });
 };
 
-deviceSchema.statics.updateStatus = function (deviceId, s) {
+deviceSchema.statics.updateStatus = function (deviceId, status) {
   return new Promise((resolve, reject) => {
-    this.findOneAndUpdate({ device: deviceId }, { status: s }, { new: true }, (err, result) => {
+    if (!deviceId) return reject({ error: 'device id is not provided.' });
+    if (!status) return reject({ error: 'status is not provided.' });
+   
+    this.findOneAndUpdate({ device: deviceId }, { status: status }, { new: true }, (err, result) => {
       if (err) {
-        console.log(`${TAG} ${err}`);
         reject(err);
+      }else{
+        resolve(result);
       }
-      resolve(result);
     });
   });
 };

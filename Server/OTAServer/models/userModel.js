@@ -23,7 +23,6 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
     lowercase: true,
-    maxlength: 100,
     index: true,
     validate: {
       isAsync: true,
@@ -35,7 +34,7 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    maxlength: 11,
+    maxlength: 13,
     minlength: 9,
     required: true,
     unique: true,
@@ -78,7 +77,7 @@ userSchema.pre('save', function (next) {
 });
 
 const comparePassword = (candidatePassword, hash, onComparisonComplete) => {
-  console.log(hash);
+  //console.log(hash);
   bcrypt.compare(candidatePassword, hash, (err, isMatch) => {
     if (err) return onComparisonComplete(err, null);
     onComparisonComplete(null, isMatch);
@@ -95,7 +94,7 @@ userSchema.methods.register = function () {
       if (err) return reject(err);
 
       // If everything goes well resolve and send user object
-      console.log(`${TAG} ${object}`);
+      //console.log(`${TAG} ${object}`);
       resolve(object);
     });
   });
@@ -109,7 +108,6 @@ userSchema.statics.authenticate = function (emailID, password) {
       _id: 1, name: 1, role: 1, phone: 1, password: 1, email: 1,
     }, (err, user) => {
       if (err || !user) return reject(err || { error: 'User not found' });
-      console.log(user);
       // Hash the provided password and compare with the one stored in db
       comparePassword(password, user.password, (err, isMatch) => {
         if (err) return reject(err);
