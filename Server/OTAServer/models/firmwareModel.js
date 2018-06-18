@@ -43,10 +43,12 @@ const firmwareSchema = new mongoose.Schema({
   device: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'devices',
+    required: true,
   },
   firmware_image: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'firmwareImages',
+    require: true,
   },
   status: {
     type: String,
@@ -115,7 +117,7 @@ firmwareSchema.statics.changeActiveFirmwareToInactiveForDevice = function (devic
 };
 
 firmwareSchema.statics.getActiveFirmware = function (deviceId) {
-  const firmware = this;
+  //const firmware = this;
   // assert(this === )
   return new Promise((resolve, reject) => {
     if (!deviceId) return reject({ error: 'device id provided is Null' });

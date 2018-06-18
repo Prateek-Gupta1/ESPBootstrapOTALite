@@ -18,7 +18,7 @@ const deviceRouter = require('./controllers/device');
 const app = express();
 
 console.log(colors.yellow(path.join(__dirname, 'views')));
-// view engine setup
+// View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'ejs');
@@ -31,18 +31,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
 //app.use(bodyParser.json());
 
-// Configure routes
-app.use('/', usersRouter);
-app.use('/user', usersRouter);
-app.use('/firmware', firmwareRouter);
-app.use('/device', deviceRouter);
+// Configure API routes
+app.use('/api/user', usersRouter);
+app.use('/api/firmware', firmwareRouter);
+app.use('/api/device', deviceRouter);
 
-// catch 404 and forward to error handler
+// Redirect all other routes to index.html
+app.use('*', function(req, res){
+  res.render('index');
+});
+
+// Catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
+// Error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
@@ -53,20 +57,21 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-//Handle any uncaught exeption
+// Handle any uncaught exeption
 app.on('uncaughtException', (err) => {
   console.log(colors.red(err.stack));
   process.exit(2);
 });
 
+// Catch any uncaught rejection from a Promise.
 app.on('unhandledRejection', (reason, p) => {
   console.log(colors.red(' Unhandled rejection at : Promise ' + p + 'reason : ' + reason));
 });
 
-//Try to establish the database connection
+// Database connection string.
 let dbConnectionStr = `mongodb://${config.db.host}:${config.db.port}/${config.db.database}`;
 
-//Connect to mongodb path
+// Connect to mongodb.
 mongoose.connect(dbConnectionStr)
 .then( () => { 
   autoIncrement.initialize(mongoose.connection);
@@ -78,23 +83,16 @@ mongoose.connect(dbConnectionStr)
   process.exit(2);
 });
 
-//Listen to disconnect event and shutdown system.
+// Listen to disconnect event and shutdown system.
 mongoose.connection.on('disconnected', function(){
   console.log(colors.red("Mongoose default connection is disconnected"));
   process.exit(2);
 });
 
+// Close mongodb connection when process is terminated.
 process.on('exit', function(){
   mongoose.connection.close(function(){
     console.log(colors.red('Mongoose default connection is disconnected due to application termination'));
-    //process.exit(0)
-  });
-});
-//Listen to process shutdown signal from user.
-process.on('SIGINT', function(){
-  mongoose.connection.close(function(){
-      console.log(colors.red('Mongoose default connection is disconnected due to application termination'));
-      //process.exit(0)
   });
 });
 
