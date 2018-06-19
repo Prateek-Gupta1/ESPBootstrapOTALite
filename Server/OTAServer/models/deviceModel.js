@@ -103,17 +103,17 @@ deviceSchema.statics.fetchAllMappedToUserId = function (userId) {
   });
 };
 
-deviceSchema.statics.updateStatus = function (deviceId, status) {
+deviceSchema.statics.updateStatus = function (deviceId, status1) {
+
   return new Promise((resolve, reject) => {
     if (!deviceId) return reject({ error: 'device id is not provided.' });
-    if (!status) return reject({ error: 'status is not provided.' });
+    if (!status1) return reject({ error: 'status is not provided.' });
    
-    this.findOneAndUpdate({ device: deviceId }, { status: status }, { new: true }, (err, result) => {
+    this.findOneAndUpdate({ device: deviceId }, { status: status1 }, { new: true }, (err, result) => {
       if (err) {
         reject(err);
-      }else{
-        resolve(result);
       }
+      resolve(result);
     });
   });
 };

@@ -409,8 +409,8 @@ describe('Unit tests of Device Model', function(){
 
             it('should be able to update status to one of [Active, Sleep, Dead, Updatable]', async function(){
                 let doc = await Device.updateStatus(deviceId, 'Dead');
-                console.log(doc);
-                expect(doc.status).equal('Dead');
+                expect(doc).to.exist;
+                expect(doc.status).to.equal('Dead');
             });
 
             it('should not allow the status to be updated to a value other than [Active, Sleep, Dead, Updatable]', async function(){

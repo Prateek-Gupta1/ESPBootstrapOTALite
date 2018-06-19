@@ -49,6 +49,7 @@ const firmwareSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'firmwareImages',
     require: true,
+    unique: true,
   },
   status: {
     type: String,
@@ -65,7 +66,6 @@ firmwareSchema.methods.publish = function () {
       if (err) return reject(err);
 
       // If everything goes well resolve and send firmware object
-      console.log(`${TAG} ${result}`);
       resolve(result);
     });
   });
@@ -78,7 +78,6 @@ firmwareSchema.statics.getAllForDevice = function (deviceId) {
     this.find({ device: deviceId }, (err, result) => {
       if (err) return reject(err);
 
-      console.log(`${TAG} ${result}`);
       resolve(result);
     });
   });
@@ -97,7 +96,6 @@ firmwareSchema.methods.updateInfo = function (values) {
       { new: true, runValidators: true },
       (err, result) => {
         if (err) return reject(err);
-        console.log(`${TAG} ${result}`);
         resolve(result);
       },
     );
@@ -105,10 +103,12 @@ firmwareSchema.methods.updateInfo = function (values) {
 };
 
 firmwareSchema.statics.changeActiveFirmwareToInactiveForDevice = function (deviceId) {
+
   return new Promise((resolve, reject) => {
+    if (!deviceId) return reject({ error: 'Null string passed' });
+
     this.findOneAndUpdate({ device: deviceId, status: 'Active' }, { status: 'Inactive' }, { new: true }, (err, result) => {
       if (err) {
-        console, log(`${TAG} ${err}`);
         reject(err);
       }
       resolve(result);
@@ -117,15 +117,13 @@ firmwareSchema.statics.changeActiveFirmwareToInactiveForDevice = function (devic
 };
 
 firmwareSchema.statics.getActiveFirmware = function (deviceId) {
-  //const firmware = this;
-  // assert(this === )
+  
   return new Promise((resolve, reject) => {
-    if (!deviceId) return reject({ error: 'device id provided is Null' });
+    if (!deviceId) return reject({ error: 'Null string passed' });
 
     this.find({ device: deviceId, status: 'Active' }, (err, result) => {
       if (err) return reject(err);
 
-      console.log(`${TAG} ${result}`);
       resolve(result);
     });
   });
