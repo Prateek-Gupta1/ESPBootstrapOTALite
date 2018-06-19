@@ -19,7 +19,7 @@ describe('Unit tests for Firmware model', function(){
 
     describe('Testing Data validations', function(){
 
-        describe('Version Name field validations', function(){
+        describe('\'version name\' field validations.', function(){
 
             it('should not pass if version name is empty', function(done){
                 var fmw = new Firmware({});
@@ -55,7 +55,7 @@ describe('Unit tests for Firmware model', function(){
     
         });
 
-        describe('Name field validation', function(){
+        describe('\'name\' field validations.', function(){
 
             it('should not pass if name is empty', function(done){
                 var fmw = new Firmware({});
@@ -106,7 +106,7 @@ describe('Unit tests for Firmware model', function(){
             });
         });
 
-        describe('Description field validations', function(){
+        describe('\'description\' field validations.', function(){
 
             it('should pass if description is not provided', function(done){
                 var fmw = new Firmware({});
@@ -140,9 +140,20 @@ describe('Unit tests for Firmware model', function(){
                 });
             });
         });
+
+        describe('\'status\' field validation.', function(){
+
+            it('should not allow status to be set to a value other than [Active, Inactive]', function(done){
+                var fmw = new Firmware({status : 'Dead'});
+                fmw.validate(function(err){
+                    expect(err.errors.status).to.exist;
+                    done();
+                });
+            });
+        });
     });
 
-    describe('Testing model methods', function(){
+    describe('Testing Model Methods', function(){
 
         var Device = require('../../models/deviceModel');
         var User = require('../../models/userModel');
@@ -194,6 +205,7 @@ describe('Unit tests for Firmware model', function(){
             
             it('should register a valid firmware info', async function(){
                 var fmwInfo = {
+                    version_code: 2,
                     version_name: '1.2.3',
                     name: 'TestFirmware',
                     device: deviceId,
@@ -205,23 +217,96 @@ describe('Unit tests for Firmware model', function(){
                 expect(res._id).to.exist;
             });
 
+            it('should not register an invalid firmware info', async function(){
+                var fmwInfo = {
+                    version_code: 2,
+                    version_name: '1.3',
+                    name: 'TestFirmware',
+                    device: deviceId,
+                    firmware_image: deviceId
+                }
 
+                let fmw = new Firmware(fmwInfo);
+                try{
+                    await fmw.publish();
+                }catch(err){
+                    expect(err).to.exist;
+                }
+            });
+
+            it('should have status field set to Active', async function(){
+                var fmwInfo = {
+                    version_code: 3,
+                    version_name: '1.2.4',
+                    name: 'TestFirmware',
+                    device: deviceId,
+                    firmware_image: deviceId
+                }
+
+                let fmw = new Firmware(fmwInfo);
+                let res = await fmw.publish();
+                expect(res.status).to.exist.and.equal('Active');
+            });
         });
 
         describe('getAllForDevice', function(){
 
+            it('should return all the firmwares registered to a device', async function(){
+                let res = await Firmware.getAllForDevice(deviceId);
+                expect(res).to.exist;
+                expect(res.length).equal(2);
+            });
+
+            it('should return empty result if deviceId does not have any firmware mapping', async function(){
+                let res = await Firmware.getAllForDevice('5b27031491d9e98094d14023');
+                expect(res).to.exist;
+                expect(res.length).equal(0);
+            });
+
+            it('should not allow invalid device id to pass' ,async function(){
+                try{
+                    await Firmware.getAllForDevice('asasd');
+                }catch(er){
+                    expect(er).to.exist;
+                }
+            });
         });
 
-        describe('updateInfo', function(){
+        // describe('updateInfo', function(){
 
-        });
+        // });
 
         describe('changeActiveFirmwareToInactiveForDevice', function(){
+            
+            it('should change the firmware status from active to inactive', async function(){
+                let res = await Firmware.changeActiveFirmwareToInactiveForDevice(deviceId);
+                expect(res).to.exist;
+                expect(res.status).to.equal('Inactive');
+            });
 
+            it('should throw error if deviceId passed is Null', async function(){
+                try{
+                    await Firmware.changeActiveFirmwareToInactiveForDevice(null);
+                }catch(err){
+                    expect(err).to.exist;
+                }
+            });
         });
 
         describe('getActiveFirmware', function(){
 
+            it('should return active firmware with the given device id', async function(){
+                let res = await Firmware.getActiveFirmware(deviceId);
+                expect(res).to.exist;
+            });
+
+            it('should throw error if deviceId passed is Null', async function(){
+                try{
+                    await Firmware.getActiveFirmware(null);
+                }catch(err){
+                    expect(err).to.exist;
+                }
+            });
         });
     });
 })
