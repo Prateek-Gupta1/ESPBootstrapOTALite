@@ -11,13 +11,12 @@
 /**
 *  Developer must set access point ssid and password. This is required when ESP8266 goes to softAP mode.
 */
-ESP8266BootstrapLite::ESP8266BootstrapLite(char* _ap_ssid, char* _ap_password, char* _ap_token){
-	this->_ap_ssid 			= _ap_ssid;
-	this->_ap_password 		= _ap_password;
-	this->_ap_token 		= _ap_token;
-	server 					= new ESP8266WebServer(80);
-	state 					= STATE_READY;
-	_wc_attempts 			= 3;
+ESP8266BootstrapLite::ESP8266BootstrapLite(char* _ap_ssid, char* _ap_password){
+	this->_ap_ssid = _ap_ssid;
+	this->_ap_password = _ap_password;
+	server = new ESP8266WebServer(80);
+	state = STATE_READY;
+	_wc_attempts = 3;
 }
 
 /*
@@ -108,13 +107,13 @@ ESPBootstrapError ESP8266BootstrapLite::bootstrap(){
 
 			begin();
 
-			DEBUG_PRINTLN("[INFO bootsrap] current state = STATE_READ\n");
+			DEBUG_PRINTLN("[INFO bootstrap] current state = STATE_READ\n");
 		
 		break;
 		
 		case STATE_WIFI_CONNECT: 
 
-			DEBUG_PRINTLN("[INFO bootsrap] current state = STATE_WIFI_CONNECT\n");
+			DEBUG_PRINTLN("[INFO bootstrap] current state = STATE_WIFI_CONNECT\n");
 			
 			err =  attemptConnectToNearbyWifi(); // Create a loop to attemp 3 times if necessary.
 
@@ -126,7 +125,7 @@ ESPBootstrapError ESP8266BootstrapLite::bootstrap(){
 
 		case STATE_WIFI_ACTIVE:
 
-			DEBUG_PRINTLN("[INFO bootsrap] current state = STATE_WIFI_ACTIVE\n");
+			DEBUG_PRINTLN("[INFO bootstrap] current state = STATE_WIFI_ACTIVE\n");
 
 			err = NO_ERROR;
 
@@ -136,13 +135,13 @@ ESPBootstrapError ESP8266BootstrapLite::bootstrap(){
 
 			err = startSoftAP();
 
-			DEBUG_PRINTLN("[Info bootsrap] current state = STATE_ACCESS_POINT_CONNECT\n");
+			DEBUG_PRINTLN("[Info bootstrap] current state = STATE_ACCESS_POINT_CONNECT\n");
 		
 		break;
 		
 		case STATE_ACCESS_POINT_ACTIVE:
 
-			DEBUG_PRINTLN("[Info bootsrap] current state = STATE_ACCESS_POINT_ACTIVE\n");
+			DEBUG_PRINTLN("[Info bootstrap] current state = STATE_ACCESS_POINT_ACTIVE\n");
 			
 			while(state == STATE_ACCESS_POINT_ACTIVE){ 
 				
@@ -153,7 +152,7 @@ ESPBootstrapError ESP8266BootstrapLite::bootstrap(){
 		
 		case STATE_SLEEP:
 
-			DEBUG_PRINTLN("[Info bootsrap] current state = STATE_SLEEP\n");
+			DEBUG_PRINTLN("[Info bootstrap] current state = STATE_SLEEP\n");
 
 			err = NO_ERROR;
 
@@ -373,51 +372,51 @@ void ESP8266BootstrapLite::storeWifiConfInSPIFF(String ssid, String password) co
 
 	if(SPIFFS.begin()){
 
-		if(SPIFFS.exists(SAVED_NETCONFIGS_FILE)){
+	  if(SPIFFS.exists(SAVED_NETCONFIGS_FILE)){
 
-			File f = SPIFFS.open(SAVED_NETCONFIGS_FILE, "w+");
+		 File f = SPIFFS.open(SAVED_NETCONFIGS_FILE, "w+");
 
-			if(f){
+		  if(f){
 				
-				bool found = false;
+			bool found = false;
 
-				while(f.available()){
+			while(f.available()){
 
-					if(ssid == f.readStringUntil('\n')){
+			  if(ssid == f.readStringUntil('\n')){
 						
-						f.println(password);
+				f.println(password);
 
-						DEBUG_PRINTLN("[INFO store_wifi] SSID %s already exists. Overwriting password for ssid.\n", &ssid[0]);
+				DEBUG_PRINTLN("[INFO store_wifi] SSID %s already exists. Overwriting password for ssid.\n", &ssid[0]);
 						
-						found = true;
+				found = true;
 						
-						break;
+				break;
 					
-					}else{
+			  }else{
 
-						String pass = f.readStringUntil('\n');
-					}
+				String pass = f.readStringUntil('\n');
+			  }
 
-				}
-				
-				if(!found){
-					
-					f.println(ssid);
-					f.println(password);
-
-					DEBUG_PRINTLN("[INFO store_wifi] configuration saved.\n");
-				}
-
-				f.close();
-				
-			}else{
-
-				DEBUG_PRINTLN("[INFO store_wifi] File error. Cannot store the Wifi credentials.\n");
 			}
-		} else{
+				
+			if(!found){
+					
+			  f.println(ssid);
+			  f.println(password);
 
-			DEBUG_PRINTLN("[INFO store_wifi] Config file not found.\n");
-		}
+			  DEBUG_PRINTLN("[INFO store_wifi] configuration saved.\n");
+			}
+
+			 f.close();
+				
+		  }else{
+
+			DEBUG_PRINTLN("[INFO store_wifi] File error. Cannot store the Wifi credentials.\n");
+		  }
+	  } else{
+
+		DEBUG_PRINTLN("[INFO store_wifi] Config file not found.\n");
+	  }
 
 	} else {
 
@@ -545,6 +544,34 @@ void ESP8266BootstrapLite::teardownWifi(){
 
 	    delay(BOOTLITE_DELAY_TIME);
   	}
+}
+
+ESP8266OTAUpdate ESP8266BootstrapLite::enableOTAUpdates(const String apihost, const String port, const String userKey){
+  
+ 	DEBUG_PRINTLN("[INFO enable OTA updated] Enabling OTA update for the device.\n");
+
+ 	this._ota_enabled = true;
+
+ 	ESP8266OTAUpdate ota(apihost, port, userKey);
+
+ 	return ota;
+}
+
+void ESP8266BootstrapLite::disableOTAUpdates(){
+
+	this._ota_enabled = false;
+}
+
+OTAError ESP8266BootstrapLite::update(ESP8266OTAUpdate ota, String macAddress){
+
+	if(_ota_enabled){
+
+		return ota.performUpdate(macAddress);
+	}
+
+	DEBUG_PRINTLN("[INFO update] OTA update was not enabled.");
+
+	return OTA_UPDATE_FAILED;
 }
 
 

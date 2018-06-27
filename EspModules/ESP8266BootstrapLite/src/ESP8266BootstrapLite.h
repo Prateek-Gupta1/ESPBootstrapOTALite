@@ -7,6 +7,7 @@
 #include "Arduino.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#include "ESP8266OTAUpdate.h"
 #include "FS.h"
 
 const uint8_t version = 1;
@@ -52,7 +53,7 @@ class ESP8266BootstrapLite{
 
 	public:
 
-		ESP8266BootstrapLite(char* _ap_ssid, char* _ap_password, char* _ap_token);
+		ESP8266BootstrapLite(char* apSSID, char* apPassword);
 		
 		~ESP8266BootstrapLite(void);
 
@@ -76,6 +77,12 @@ class ESP8266BootstrapLite{
 		
 		void setState(ESPBootstrapState);
 
+		ESP8266OTAUpdate enableOTAUpdates(const String apihost, const String port, const String userToken);
+
+		void disableOTAUpdates();
+
+		OTAError update(ESP8266OTAUpdate ota, String macAddress);
+
 	private:
 
 		ESPBootstrapState state;
@@ -92,7 +99,8 @@ class ESP8266BootstrapLite{
 
 		char* _ap_ssid;
 		char* _ap_password;
-		char* _ap_token;
+		char* _user_token;
+		bool _ota_enabled;
 
 		ESP8266WebServer* server;
 };
