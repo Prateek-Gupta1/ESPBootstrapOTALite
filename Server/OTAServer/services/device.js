@@ -13,7 +13,7 @@ class DeviceManager {
             description: device.description,
             model: device.modelName,
           });
-
+        //Todo : Check if user exists in database.
         return deviceInfo.register();
     }
 

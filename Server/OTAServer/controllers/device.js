@@ -66,8 +66,8 @@ router.get('/user/:id', (req, res, next) => {
 router.get('/mac', Validation.validateMacAddress, (req, res, next) => {
   const macAddress = req.query.macaddress;
   manager.getDeviceInfoForMac(macAddress)
-    .then((result) => {
-      if (result) res.status(200).send(result);
+    .then((deviceInfo) => {
+      if (deviceInfo) res.status(200).send(deviceInfo);
       else res.status(204).send({ message: 'Provided mac address did not return any results.' });
     })
     .catch((err) => {
