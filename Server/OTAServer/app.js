@@ -3,7 +3,7 @@
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
-const cookieParser  = require('cookie-parser');
+//const cookieParser  = require('cookie-parser');
 const logger = require('morgan');
 const colors = require('colors');
 const mongoose = require('mongoose');
@@ -14,6 +14,7 @@ const bodyParser = require('body-parser');
 const usersRouter = require('./controllers/users');
 const firmwareRouter = require('./controllers/firmware');
 const deviceRouter = require('./controllers/device');
+//const userAuth = require('./middlewares/authentication/userauth');
 
 const app = express();
 
@@ -26,9 +27,10 @@ app.set('view engine', 'ejs');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+//app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
+app.disable('x-powered-by');
 //app.use(bodyParser.json());
 
 // Configure API routes

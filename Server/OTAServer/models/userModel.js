@@ -120,4 +120,16 @@ userSchema.statics.authenticate = function (emailID, password) {
   });
 };
 
+userSchema.statics.checkIfExists = function(userId){
+  return new Promise((resolve, reject) => {
+
+    this.findOne({ _id : userId }, { name: 1 }, (err, user) => {
+      if(err || !user) {
+        return reject(err || {error: 'User not found.' });
+      }
+      return resolve(user);
+    });
+  });
+};
+
 module.exports = mongoose.model(collectionName, userSchema);

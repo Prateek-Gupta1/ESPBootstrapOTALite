@@ -4,10 +4,12 @@ const express = require('express');
 const router = express.Router();
 const DeviceManager = require('../services/device');
 const Validation = require('../middlewares/validations/deviceValidation');
-
+const userAuth = require('../middlewares/authentication/userauth');
 
 const manager = new DeviceManager();
 // const TAG = 'DeviceController';
+
+router.use(userAuth.authenticate);
 
 router.post('/register', Validation.validateDeviceRegistrationData, (req, res, next) => {
   const device = {
