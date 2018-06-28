@@ -15,11 +15,11 @@
 
 ESP8266OTAUpdate::ESP8266OTAUpdate(String apihost, String port, String userToken) {
 
-	if(apihost != NULL && apihost.length() != 0) {
+	if(apihost != NULL && apihost.trim().length() != 0) {
 
 		url = apihost;
 
-		if(port != NULL && port.length() != 0) {
+		if(port != NULL && port.trim().length() != 0) {
 
 			url = "http://" + url + ":" + port + "/";
 		}
@@ -107,7 +107,7 @@ String ESP8266OTAUpdate::getDeviceIndentityFromServer(String macAddress, String 
 
 	HTTPClient http;
 
-	StaticJsonBuffer<800> JSONBuffer;
+	StaticJsonBuffer<1500> JSONBuffer;
 
 	if(WiFi.status() == WL_CONNECTED){
 
@@ -193,6 +193,8 @@ OTAError ESP8266OTAUpdate::performUpdate(String macAddress){
 
 		if(WiFi.status() != WL_CONNECTED) {
 
+			DEBUG_PRINTLN("No network connection.");
+
 			return OTA_NO_NETWORK_CONNECTION;
 		}
 
@@ -200,7 +202,10 @@ OTAError ESP8266OTAUpdate::performUpdate(String macAddress){
 
 		if(deviceId == NULL) {
 
+			DEBUG_PRINTLN("Device could not be identified.");
+
 			return OTA_UNINDENTIFIED_DEVICE;
+
 		} else {
 
 			storeInfoInSPIFFS(DEVICE_IDENTITY, deviceId);

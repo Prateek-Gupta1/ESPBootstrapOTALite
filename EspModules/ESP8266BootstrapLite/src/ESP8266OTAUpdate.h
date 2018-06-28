@@ -41,6 +41,8 @@ class ESP8266OTAUpdate : public ESP8266HTTPUpdate {
 
 	OTAError update(String deviceId);
 
+	String getDeviceIndentityFromServer(String macAddress, String resourceUri);
+
   public:
 
   	ESP8266OTAUpdate(String hostname, String port, String user_token);
