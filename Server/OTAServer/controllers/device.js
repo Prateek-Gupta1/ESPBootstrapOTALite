@@ -4,10 +4,12 @@ const express = require('express');
 const router = express.Router();
 const DeviceManager = require('../services/device');
 const Validation = require('../middlewares/validations/deviceValidation');
-
+const userAuth = require('../middlewares/authentication/userauth');
 
 const manager = new DeviceManager();
 // const TAG = 'DeviceController';
+
+router.use(userAuth.authenticate);
 
 router.post('/register', Validation.validateDeviceRegistrationData, (req, res, next) => {
   const device = {
@@ -66,8 +68,8 @@ router.get('/user/:id', (req, res, next) => {
 router.get('/mac', Validation.validateMacAddress, (req, res, next) => {
   const macAddress = req.query.macaddress;
   manager.getDeviceInfoForMac(macAddress)
-    .then((result) => {
-      if (result) res.status(200).send(result);
+    .then((deviceInfo) => {
+      if (deviceInfo) res.status(200).send(deviceInfo);
       else res.status(204).send({ message: 'Provided mac address did not return any results.' });
     })
     .catch((err) => {

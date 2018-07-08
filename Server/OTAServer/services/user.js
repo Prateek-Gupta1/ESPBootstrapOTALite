@@ -18,6 +18,10 @@ class UserManager {
     login(email, password) {
         return userModel.authenticate(email, password);
     }
+
+    exists(userId) {
+        return userModel.checkIfExists(userId);
+    }
 }
 
 module.exports = UserManager;

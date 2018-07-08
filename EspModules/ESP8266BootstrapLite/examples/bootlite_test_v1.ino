@@ -9,7 +9,7 @@
 
   const int RESET_WIFI_BUTTON_PIN = 2;
 
-  ESP8266BootstrapLite bootLite(ssid_ap, password_ap, token);
+  ESP8266BootstrapLite bootLite(ssid_ap, password_ap);
   
   void setup() {
     // put your setup code here, to run once:

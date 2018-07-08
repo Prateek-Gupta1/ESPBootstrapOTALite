@@ -8,13 +8,14 @@ const mime = require('mime');
 const fs = require('fs');
 const Device = require('../models/deviceModel');
 var FirmwareManager = require('../services/firmware');
+const userAuth = require('../middlewares/authentication/userauth');
 
 const manager = new FirmwareManager();
 
 // Defines constraints on the uploaded file
 const limits = {
   fieldNameSize: 255,
-  fileSize: 5000000,
+  fileSize: 6000000,
   files: 1,
   fields: 7,
 };
@@ -43,6 +44,8 @@ const upload = multer({
     }
   },
 }).single('firmwareImg');
+
+router.use(userAuth.authenticate);
 
 router.post('/publish/device/:id', (req, res, next) => {
   // Upload the file on server and store it temporarily in uploads directory.
@@ -137,7 +140,7 @@ router.get('/all/device/:id', (req, res, next) => {
   const deviceId = req.params.id;
 
   if (!deviceId) {
-    res.status(400).send({ error: 'Device Id is required but was provided in the url.' });
+    res.status(400).send({ error: 'Device Id is required.' });
     return router;
   }
 
@@ -146,7 +149,7 @@ router.get('/all/device/:id', (req, res, next) => {
       if (result) {
         res.status(200).send(result);
       } else {
-        res.status(204).send({ message: 'Provided device id did not return any results.' });
+        res.status(204).send({ message: 'No results found for given Device ID' });
       }
     })
     .catch((err) => {
@@ -160,7 +163,7 @@ router.get('/imagefile/:id', (req, res, next) => {
   const imageId = req.params.id;
 
   if (!imageId) {
-    res.status(400).send({ error: 'Device Id is required but was provided in the url.' });
+    res.status(400).send({ error: 'Image Id is required.' });
     return router;
   }
 
@@ -171,6 +174,36 @@ router.get('/imagefile/:id', (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+
+  return router;
+});
+
+router.get('/ota/update/device/:id', (req, res, next) => {
+  const deviceId = req.params.id;
+  if (!deviceId) {
+    res.status(400).send({ error: 'Device Id is required.' });
+    return router;
+  }
+
+  manager.getActiveFirmwareForDevice(deviceId)
+  .then((result) => {
+    if(result){
+      console.log(result);
+      manager.getFirmwareBinary(result[0].firmware_image)
+      .then((file) => {
+        if(file){
+          res.status(200).send(file.image_file);
+        }else{
+          res.status(404).send({error: "Resource not found."});
+        }
+      })
+    }else{
+      res.status(404).send({error: "Resource not found."});
+    }
+  })
+  .catch((err) => {
+    next(err);
+  });
 
   return router;
 });

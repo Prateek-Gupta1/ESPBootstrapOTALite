@@ -120,3 +120,10 @@ deviceSchema.statics.updateStatus = function (deviceId, status1) {
 
 module.exports = mongoose.model(collectionName, deviceSchema);
 
+// //ES6
+// this.setState(prevState => ({ isToggleOn : !prevState.isToggleOn}))
+// ===
+// //ES5
+// this.setState( function(prevState) {
+//   return { isToggleOn : !prevState.isToggleOn }
+// });
