@@ -1,7 +1,18 @@
 <resources>
     <string name="app_name">ESPCompanion</string>
-    <string name="main_msg_text">Please scan the QR code provided by the vendor of the IoT device</string>
+    <string name="main_msg_text">Please scan the QR code provided by the vendor of the IoT device.\n\nTap on the action button at the bottom to scan.</string>
     <string name="scan_qrcode">Scan QRcode</string>
     <string name="qrcode_result_text_ok">The Access point credentials were successfully scanned. connecting to the network</string>
     <string name="qrcode_result_text_error">The QR code information was incorrect. Please scan again.</string>
+
+    <string name="title_activity_splashscreen">SplashscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">ESP\nCOMPANION</string>
+    <string name="esp_companion">ESP COMPANION</string>
+    <string name="saved_config_li_ssid">ssid</string>
+    <string name="saved_config_li_macaddress">mac address</string>
+    <string name="saved_config_li_image_desc">ESP Image</string>
+    <string name="saved_config_li_connect">Connect</string>
+    <string name="available_network_message">Please select the network you want to configure in the device.</string>
+    <string name="error_cannot_add_network">Cannot enable the selected network. Please try again. </string>
 </resources>

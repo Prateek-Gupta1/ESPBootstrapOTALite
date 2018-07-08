@@ -1,4 +1,4 @@
-package edu.sfsu.pgupta.espcompanion;
+package edu.sfsu.pgupta.espcompanion.services;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -14,6 +14,7 @@ public interface EspService {
     @GET("/apconfig")
     Call<ResponseBody> sendWifiCredentials(
             @Query("ssid") String ssid,
-            @Query("password") String password
+            @Query("password") String password,
+            @Query("token") String token
     );
 }
