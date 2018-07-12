@@ -2,7 +2,9 @@
 
 #include "ESP8266BootstrapLite.h"
 
-#define SAVED_NETCONFIGS_FILE "/savednets.csv"
+#define BOOTLITE_SAVED_NETCONFIGS_FILE "/savednets.csv"
+
+#define BOOTLITE_USER_TOKEN_FILE "/token.csv"
 
 #define BOOTLITE_CONFIG_URI "/configs"
 
@@ -41,9 +43,9 @@ bool ESP8266BootstrapLite::begin(){
 
 		DEBUG_PRINTLN("[INFO begin] Checking if configs file exists.\n");
 		
-		if(SPIFFS.exists(SAVED_NETCONFIGS_FILE)){
+		if(SPIFFS.exists(BOOTLITE_SAVED_NETCONFIGS_FILE)){
 			
-			File f = SPIFFS.open(SAVED_NETCONFIGS_FILE, "r");
+			File f = SPIFFS.open(BOOTLITE_SAVED_NETCONFIGS_FILE, "r");
 			
 			if(f && f.size() > 0){
 
@@ -64,7 +66,7 @@ bool ESP8266BootstrapLite::begin(){
 
 			DEBUG_PRINTLN("[INFO begin] Device booting for the first time. Creating required files to save wifi credentials.\n");
 			
-			File f = SPIFFS.open(SAVED_NETCONFIGS_FILE ,"w");
+			File f = SPIFFS.open(BOOTLITE_SAVED_NETCONFIGS_FILE ,"w");
 
 			state = STATE_ACCESS_POINT_CONNECT;
 
@@ -103,12 +105,12 @@ ESPBootstrapError ESP8266BootstrapLite::bootstrap(){
 
 	switch(state){
 
+		//If user forgets to call begin() in setup function, then this will execute begin().
 		case STATE_READY: 
 
 			begin();
 
 			DEBUG_PRINTLN("[INFO bootstrap] current state = STATE_READ\n");
-		
 		break;
 		
 		case STATE_WIFI_CONNECT: 
@@ -191,7 +193,7 @@ ESPBootstrapError ESP8266BootstrapLite::attemptConnectToNearbyWifi(){
 
 	DEBUG_PRINTLN("[INFO NearbyWifi] Networks found in the vicinity.\n");
 
-	File fcreds = SPIFFS.open(SAVED_NETCONFIGS_FILE, "r");
+	File fcreds = SPIFFS.open(BOOTLITE_SAVED_NETCONFIGS_FILE, "r");
 
 	if(!fcreds){
 		
@@ -242,6 +244,36 @@ ESPBootstrapError ESP8266BootstrapLite::attemptConnectToNearbyWifi(){
 }
 
 
+void ESP8266BootstrapLite::storeUserTokenInSPIFFS(String token) const {
+
+	if(SPIFFS.begin()){
+
+		File file = SPIFFS.open(BOOTLITE_USER_TOKEN_FILE, "w");
+
+		if(file){
+			
+			file.println(token);
+			file.close();
+		}
+	} else {
+		DEBUG_PRINTLN("SPIFFS cannot be initialized.");
+	}
+}
+
+String ESP8266BootstrapLite::getUserTokenFromSPIFFS(){
+
+	String token;
+
+	File file = SPIFFS.open(BOOTLITE_USER_TOKEN_FILE, "r");
+
+	if(file){
+		token = file.readStringUntil('\n');
+		file.close();
+	}
+
+	return token;
+}
+
 
 /*
 *
@@ -254,62 +286,66 @@ void ESP8266BootstrapLite::handleConfig(){
 
 		token = server->arg("token");
 
-		if(token == _ap_token) {
-			
-			if(server->hasArg("ssid") && server->hasArg("password")){
-			    
-			    ssid = server->arg("ssid");
-			    
-			    password = server->arg("password");
-			    
-			    DEBUG_PRINTLN("[INFO ap_handler]Received Args");
+		storeUserTokenInSPIFFS(token);
 
-			    server->send(200, "text/plain", "Got configuration params");
-
-			    delay(BOOTLITE_DELAY_TIME);
-
-			    ESPBootstrapError err = connectToWifi(ssid, password);
-
-			    if(err == NO_ERROR){
-
-			    	storeWifiConfInSPIFF(ssid, password);
-
-			    } else {
-
-			    	DEBUG_PRINTLN("[ERROR ap_handler] Failed to connect to Wifi with ssid %s.\n", &ssid[0]);
-
-			    	state = STATE_ACCESS_POINT_CONNECT;
-			    }
-
-			 } else {
-
-			 	DEBUG_PRINTLN("[ERROR ap_handler] ssid or password field not found.\n");
-
-			 	state = STATE_ACCESS_POINT_CONNECT;
-
-			 	server->send(400, "text/plain", "Bad request");
-
-			 }
-
-		} else {
-
-			DEBUG_PRINTLN("[ERROR ap_handler] Secure token didn't match. Please try to send the request again.\n");
-
-			state = STATE_ACCESS_POINT_CONNECT;
-			
-			server->send(400, "text/plain", "Bad request");
-		}
-	} else {
-		
-		DEBUG_PRINTLN("[ERROR ap_handler] Secure token not found as parameter. Please try to send the request again.\n");
-
-		state = STATE_ACCESS_POINT_CONNECT;
-		
-		server->send(400, "text/plain", "Bad request");
-
+		_user_token = token;
 	}
 
+		//if(token == _ap_token) {
+	
+	if(server->hasArg("ssid") && server->hasArg("password")){
+	    
+	    ssid = server->arg("ssid");
+	    
+	    password = server->arg("password");
+	    
+	    DEBUG_PRINTLN("[INFO ap_handler]Received Args");
+
+	    server->send(200, "text/plain", "Got configuration params");
+
+	    delay(BOOTLITE_DELAY_TIME);
+
+	    ESPBootstrapError err = connectToWifi(ssid, password);
+
+	    if(err == NO_ERROR){
+
+	    	storeWifiConfInSPIFF(ssid, password);
+
+	    } else {
+
+	    	DEBUG_PRINTLN("[ERROR ap_handler] Failed to connect to Wifi with ssid %s.\n", &ssid[0]);
+
+	    	state = STATE_ACCESS_POINT_CONNECT;
+	    }
+
+	 } else {
+
+	 	DEBUG_PRINTLN("[ERROR ap_handler] ssid or password field not found.\n");
+
+	 	state = STATE_ACCESS_POINT_CONNECT;
+
+	 	server->send(400, "text/plain", "Bad request");
+
+	 }
 }
+		// } else {
+
+		// 	DEBUG_PRINTLN("[ERROR ap_handler] Secure token didn't match. Please try to send the request again.\n");
+
+		// 	state = STATE_ACCESS_POINT_CONNECT;
+			
+		// 	server->send(400, "text/plain", "Bad request");
+		// }
+	// } else {
+		
+	// 	DEBUG_PRINTLN("[ERROR ap_handler] Secure token not found as parameter. Please try to send the request again.\n");
+
+	// 	state = STATE_ACCESS_POINT_CONNECT;
+		
+	// 	server->send(400, "text/plain", "Bad request");
+
+	// }
+
 
 /*
 *
@@ -360,7 +396,6 @@ ESPBootstrapError ESP8266BootstrapLite::startSoftAP() {
 	DEBUG_PRINTLN("[soft_ap] Returning from function.\n");
 
 	return NO_ERROR;
-
 }
 
 /*
@@ -372,9 +407,9 @@ void ESP8266BootstrapLite::storeWifiConfInSPIFF(String ssid, String password) co
 
 	if(SPIFFS.begin()){
 
-	  if(SPIFFS.exists(SAVED_NETCONFIGS_FILE)){
+	  if(SPIFFS.exists(BOOTLITE_SAVED_NETCONFIGS_FILE)){
 
-		 File f = SPIFFS.open(SAVED_NETCONFIGS_FILE, "w+");
+		 File f = SPIFFS.open(BOOTLITE_SAVED_NETCONFIGS_FILE, "w+");
 
 		  if(f){
 				
@@ -546,11 +581,20 @@ void ESP8266BootstrapLite::teardownWifi(){
   	}
 }
 
-ESP8266OTAUpdate ESP8266BootstrapLite::enableOTAUpdates(const String apihost, const String port, const String userKey){
+ESP8266OTAUpdate ESP8266BootstrapLite::enableOTAUpdates(const String apihost, const String port, String userKey){
   
  	DEBUG_PRINTLN("[INFO OTA update] Enabling OTA update for the device.\n");
 
- 	this._ota_enabled = true;
+ 	_ota_enabled = true;
+
+ 	if( userKey == "\0" || userKey.length() <= 6) {
+ 	
+ 		if(_user_token == "\0" || _user_token.length()<=6){
+
+ 			_user_token = getUserTokenFromSPIFFS();
+ 		}
+ 		userKey = _user_token;
+ 	}
 
  	ESP8266OTAUpdate ota(apihost, port, userKey);
 
@@ -561,7 +605,7 @@ void ESP8266BootstrapLite::disableOTAUpdates(){
 	
 	DEBUG_PRINTLN("[INFO OTA update] Disabling OTA update for the device.\n");
 	
-	this._ota_enabled = false;
+	_ota_enabled = false;
 }
 
 OTAError ESP8266BootstrapLite::update(ESP8266OTAUpdate ota, String macAddress){

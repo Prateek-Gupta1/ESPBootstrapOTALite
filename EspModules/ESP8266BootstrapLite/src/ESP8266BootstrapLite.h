@@ -77,7 +77,7 @@ class ESP8266BootstrapLite{
 		
 		void setState(ESPBootstrapState);
 
-		ESP8266OTAUpdate enableOTAUpdates(const String apihost, const String port, const String userToken);
+		ESP8266OTAUpdate enableOTAUpdates(const String apihost, const String port, String userToken);
 
 		void disableOTAUpdates();
 
@@ -97,9 +97,13 @@ class ESP8266BootstrapLite{
 
 		void storeWifiConfInSPIFF(String ssid, String password) const;
 
+		void storeUserTokenInSPIFFS(String token) const;
+
+		String getUserTokenFromSPIFFS();
+
 		char* _ap_ssid;
 		char* _ap_password;
-		char* _user_token;
+		String _user_token;
 		bool _ota_enabled;
 
 		ESP8266WebServer* server;
