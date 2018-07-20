@@ -45,6 +45,7 @@ typedef enum ESPBootstrapState {
 typedef enum ESPBootstrapError{ 
 	ERROR_ACCESS_POINT, 
 	ERROR_WIFI_CONNECT,
+	ERROR_OTA_UPDATE_FAILED,
 	NO_ERROR
 } ESPBootstrapError;
 
@@ -77,11 +78,11 @@ class ESP8266BootstrapLite{
 		
 		void setState(ESPBootstrapState);
 
-		ESP8266OTAUpdate enableOTAUpdates(const String apihost, const String port, String userToken);
+		void enableOTAUpdates(const String apihost, const String port, String userToken);
 
 		void disableOTAUpdates();
 
-		OTAError update(ESP8266OTAUpdate ota, String macAddress);
+		ESPBootstrapError update(String macAddress);
 
 	private:
 
@@ -105,6 +106,8 @@ class ESP8266BootstrapLite{
 		char* _ap_password;
 		String _user_token;
 		bool _ota_enabled;
+		String _api_host;
+		String _api_port;
 
 		ESP8266WebServer* server;
 };

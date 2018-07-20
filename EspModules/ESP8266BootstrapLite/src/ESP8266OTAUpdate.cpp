@@ -7,7 +7,7 @@
 
 #define UPDATE_API_ENDPOINT "api/firmware/ota/update/device/"
 
-#define DEFAULT_URL "http://localhost:8080/"
+#define DEFAULT_URL "http://localhost:3000/"
 
 #define FILE_DEVICE_IDENTITY "/device.csv"
 
@@ -25,6 +25,8 @@ ESP8266OTAUpdate::ESP8266OTAUpdate(String apihost, String port, String userToken
 		}
 
 	}else{
+
+		DEBUG_PRINTLN("API host and port not provided. Using default 'http://localhost:3000/' as api host.\n");
 
 		url = DEFAULT_URL;
 	}

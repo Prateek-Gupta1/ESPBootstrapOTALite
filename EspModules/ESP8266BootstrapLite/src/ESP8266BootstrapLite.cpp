@@ -581,7 +581,7 @@ void ESP8266BootstrapLite::teardownWifi(){
   	}
 }
 
-ESP8266OTAUpdate ESP8266BootstrapLite::enableOTAUpdates(const String apihost, const String port, String userKey){
+void ESP8266BootstrapLite::enableOTAUpdates(const String apihost, const String port, String userKey){
   
  	DEBUG_PRINTLN("[INFO OTA update] Enabling OTA update for the device.\n");
 
@@ -596,9 +596,8 @@ ESP8266OTAUpdate ESP8266BootstrapLite::enableOTAUpdates(const String apihost, co
  		userKey = _user_token;
  	}
 
- 	ESP8266OTAUpdate ota(apihost, port, userKey);
-
- 	return ota;
+ 	_api_host = apihost;
+ 	_api_port = port;
 }
 
 void ESP8266BootstrapLite::disableOTAUpdates(){
@@ -608,16 +607,22 @@ void ESP8266BootstrapLite::disableOTAUpdates(){
 	_ota_enabled = false;
 }
 
-OTAError ESP8266BootstrapLite::update(ESP8266OTAUpdate ota, String macAddress){
+ESPBootstrapError ESP8266BootstrapLite::update(String macAddress){
+
+	ESP8266OTAUpdate ota(_api_host, _api_port, _user_token);
+	OTAError err;
 
 	if(_ota_enabled){
+		err =  ota.performUpdate(macAddress);
 
-		return ota.performUpdate(macAddress);
+		if(err == OTA_NO_ERROR){
+			return NO_ERROR;
+		}
 	}
 
-	DEBUG_PRINTLN("[INFO OTA update] OTA update was not enabled.");
+	DEBUG_PRINTLN("[INFO OTA update] OTA update was disabled.");
 
-	return OTA_UPDATE_FAILED;
+	return ERROR_OTA_UPDATE_FAILED;
 }
 
 
