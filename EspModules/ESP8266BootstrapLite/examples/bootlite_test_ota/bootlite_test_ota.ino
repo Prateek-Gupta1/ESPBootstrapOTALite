@@ -15,7 +15,8 @@
   void setup() {
     // put your setup code here, to run once:
     Serial.begin(115200);
-    
+    //Serial.println("New Firmware");
+        
     pinMode(RESET_WIFI_BUTTON_PIN, INPUT);
     
     delay(500);  
@@ -25,7 +26,7 @@
   
     bool success = bootLite.begin();
 
-    bootLite.enableOTAUpdates("\0", "\0", token);
+    bootLite.enableOTAUpdates("10.0.0.249", "3000", token);
   
     attachInterrupt(digitalPinToInterrupt(RESET_WIFI_BUTTON_PIN), pin_ISR, FALLING);
   }
@@ -39,6 +40,10 @@
       if(bootLite.getState() == STATE_WIFI_ACTIVE){
         
         Serial.println("Wifi connected");
+        //Serial.println("OTA Successful! yaay!.");
+        delay(5000);
+
+        bootLite.update(WiFi.macAddress());
       
       }
   }
@@ -48,8 +53,6 @@
     Serial.println("Reset button pressed.");
     
     digitalWrite(RESET_WIFI_BUTTON_PIN, HIGH);
-
-    bootLite.update(WiFi.macAddress());
   
   }
     

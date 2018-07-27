@@ -288,7 +288,7 @@ void ESP8266BootstrapLite::handleConfig(){
 
 		storeUserTokenInSPIFFS(token);
 
-		_user_token = token;
+		//_user_token = token;
 	}
 
 		//if(token == _ap_token) {
@@ -588,14 +588,11 @@ void ESP8266BootstrapLite::enableOTAUpdates(const String apihost, const String p
  	_ota_enabled = true;
 
  	if( userKey == "\0" || userKey.length() <= 6) {
- 	
- 		if(_user_token == "\0" || _user_token.length()<=6){
 
- 			_user_token = getUserTokenFromSPIFFS();
- 		}
- 		userKey = _user_token;
+ 		userKey = getUserTokenFromSPIFFS();
  	}
 
+ 	_user_token = userKey;
  	_api_host = apihost;
  	_api_port = port;
 }

@@ -32,8 +32,11 @@ ESP8266OTAUpdate::ESP8266OTAUpdate(String apihost, String port, String userToken
 	}
 
 	if(userToken == "\0" || userToken.length() <= 6) {
-
 		zombie = true;
+
+	} else {
+		user_token = userToken;
+
 	}
 }
 
@@ -114,8 +117,6 @@ String ESP8266OTAUpdate::getDeviceIndentityFromServer(String macAddress, String 
 
 	if(WiFi.status() == WL_CONNECTED){
 
-		http.addHeader("user", user_token);
-
 		if(resourceUri != NULL && resourceUri.length() != 0){
 
 			http.begin(url + resourceUri + "?macaddress=" + macAddress);
@@ -124,6 +125,8 @@ String ESP8266OTAUpdate::getDeviceIndentityFromServer(String macAddress, String 
 
 			http.begin(url + GET_DEVICE_INFO_API_ENDPOINT + "?macaddress=" + macAddress);
 		}
+
+		http.addHeader("Authentication", user_token);
 
 		int httpCode = http.GET();
 
@@ -161,7 +164,7 @@ OTAError ESP8266OTAUpdate::update(String deviceId){
 
 	http.begin(url + UPDATE_API_ENDPOINT + deviceId);
 
-	http.addHeader("user", user_token);
+	http.addHeader("Authentication", user_token);
 
 	HTTPUpdateResult ret = handleUpdate(http, "\0");
 
