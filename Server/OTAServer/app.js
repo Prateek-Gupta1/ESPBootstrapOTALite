@@ -74,7 +74,7 @@ app.on('unhandledRejection', (reason, p) => {
 let dbConnectionStr = `mongodb://${config.db.host}:${config.db.port}/${config.db.database}`;
 
 // Connect to mongodb.
-mongoose.connect(dbConnectionStr)
+mongoose.connect(dbConnectionStr) //{ useNewUrlParser: true })
 .then( () => { 
   autoIncrement.initialize(mongoose.connection);
   console.log(colors.green('Connected to mongodb database'));
@@ -87,14 +87,14 @@ mongoose.connect(dbConnectionStr)
 
 // Listen to disconnect event and shutdown system.
 mongoose.connection.on('disconnected', function(){
-  console.log(colors.red("Mongoose default connection is disconnected"));
+  console.log(colors.red('Mongoose default connection is disconnected'));
   process.exit(2);
 });
 
 // Close mongodb connection when process is terminated.
 process.on('exit', function(){
   mongoose.connection.close(function(){
-    console.log(colors.red('Mongoose default connection is disconnected due to application termination'));
+    console.log(colors.red('Mongoose default connection is closed due to application termination'));
   });
 });
 
