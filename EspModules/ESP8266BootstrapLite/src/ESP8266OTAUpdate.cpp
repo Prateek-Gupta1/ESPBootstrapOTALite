@@ -13,6 +13,10 @@
 
 #define DEVICE_IDENTITY "device"
 
+/*
+*  User should provide all the parameters. "apihost" must be the domain name only. If "port" is not provided, then the "apihost" must 
+*  be complete url of the service. If "userToken" is not passed then the library functions will not work.
+*/
 ESP8266OTAUpdate::ESP8266OTAUpdate(String apihost, String port, String userToken) {
 
 	if(apihost != "\0" && apihost.length() != 0) {
@@ -40,11 +44,16 @@ ESP8266OTAUpdate::ESP8266OTAUpdate(String apihost, String port, String userToken
 	}
 }
 
+
 ESP8266OTAUpdate::ESP8266OTAUpdate(String apihost, String userToken){
 
 	ESP8266OTAUpdate(apihost, "\0", userToken);
 }
 
+
+/*
+*  Helper function that retreives info from the device's permanent memory i.e. SPIFFS.
+*/
 String ESP8266OTAUpdate::getInfoFromSPIFFS(String key){
 
 	if(zombie) {
@@ -84,7 +93,9 @@ String ESP8266OTAUpdate::getInfoFromSPIFFS(String key){
 	return "\0";
 }
 
-
+/*
+*  Helper function that stores info on the device's permanent memory i.e. SPIFFS.
+*/
 void ESP8266OTAUpdate::storeInfoInSPIFFS(String key, String value){
 
 	if(zombie) {
@@ -102,6 +113,12 @@ void ESP8266OTAUpdate::storeInfoInSPIFFS(String key, String value){
 	}
 }
 
+
+/*
+*  This is a helper function that gets the device identity from the server. The device identity is a unique token that is assigned 
+*  to each device when the user registers the device on backend service. 
+*  If "resourceUri" is not provided then it tries to access a default uri.
+*/
 String ESP8266OTAUpdate::getDeviceIndentityFromServer(String macAddress, String resourceUri){
 
 	if(zombie) {
@@ -158,6 +175,10 @@ String ESP8266OTAUpdate::getDeviceIndentityFromServer(String macAddress, String 
 	return "\0";
 }
 
+
+/*
+*  Performs update on the device by communicating with the server. It is a helper function called by the public method "performUpdate"
+*/
 OTAError ESP8266OTAUpdate::update(String deviceId){
 
 	HTTPClient http;
@@ -186,6 +207,9 @@ OTAError ESP8266OTAUpdate::update(String deviceId){
     return OTA_UPDATE_FAILED;
 }
 
+/*
+*  User should call this method to download new firmware.
+*/
 OTAError ESP8266OTAUpdate::performUpdate(String macAddress){
 
 	if(zombie) {

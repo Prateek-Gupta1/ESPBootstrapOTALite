@@ -32,7 +32,7 @@ ESP8266BootstrapLite::~ESP8266BootstrapLite(void){}
 */
 bool ESP8266BootstrapLite::begin(){
 
-	//ToDo : Check available size of SPIFF
+	//ToDo : Check available size of SPIFFS
 	
 	//Serial.begin(115200);
 
@@ -97,7 +97,7 @@ void ESP8266BootstrapLite::end(bool reboot = false){
 }
 
 /*
-*
+* User should call this function inside the loop() function of Arduino. 
 */
 ESPBootstrapError ESP8266BootstrapLite::bootstrap(){
 
@@ -117,7 +117,7 @@ ESPBootstrapError ESP8266BootstrapLite::bootstrap(){
 
 			DEBUG_PRINTLN("[INFO bootstrap] current state = STATE_WIFI_CONNECT\n");
 			
-			err =  attemptConnectToNearbyWifi(); // Create a loop to attemp 3 times if necessary.
+			err =  attemptConnectToNearbyWifi(); // ToDo: Create a loop to attempt 3 times if necessary.
 
 			if( err == ERROR_WIFI_CONNECT ) state = STATE_ACCESS_POINT_CONNECT;
 
@@ -135,6 +135,7 @@ ESPBootstrapError ESP8266BootstrapLite::bootstrap(){
 		
 		case STATE_ACCESS_POINT_CONNECT: 
 
+			//This will try to start Access Point of the device.
 			err = startSoftAP();
 
 			DEBUG_PRINTLN("[Info bootstrap] current state = STATE_ACCESS_POINT_CONNECT\n");
@@ -152,6 +153,7 @@ ESPBootstrapError ESP8266BootstrapLite::bootstrap(){
 		
 		break;
 		
+		//This state is not used yet.
 		case STATE_SLEEP:
 
 			DEBUG_PRINTLN("[Info bootstrap] current state = STATE_SLEEP\n");
@@ -166,12 +168,14 @@ ESPBootstrapError ESP8266BootstrapLite::bootstrap(){
 
 
 /*
-*
+* This function tries to connect to a wifi using stored configurations. If the SSID is found and password matches, then connection is 
+* established otherwise it returns an error code so that the calling code can initiate access point.
 */
 ESPBootstrapError ESP8266BootstrapLite::attemptConnectToNearbyWifi(){
 	
 	DEBUG_PRINTLN("[INFO NearbyWifi] Attempting to connect to wifi in vicinity with credentials stored on ESP.\n");
 
+	//Shut down wifi with previous settings.
 	teardownWifi();
 
 	WiFi.mode(WIFI_STA);
@@ -206,7 +210,7 @@ ESPBootstrapError ESP8266BootstrapLite::attemptConnectToNearbyWifi(){
 
 	while(fcreds.available()){
 
-		//ssid and password are stored in separate lines to avoid complexity of the program
+		//ssid and password are stored in separate lines to avoid complexity of the program.
 		ssid = fcreds.readStringUntil('\n');
 		pass = fcreds.readStringUntil('\n');
 
@@ -276,7 +280,7 @@ String ESP8266BootstrapLite::getUserTokenFromSPIFFS(){
 
 
 /*
-*
+*  Handler method that receives the Wifi credentials over the Access Point server and stores them in SPIFFS for future use.
 */
 void ESP8266BootstrapLite::handleConfig(){
 
@@ -328,27 +332,11 @@ void ESP8266BootstrapLite::handleConfig(){
 
 	 }
 }
-		// } else {
-
-		// 	DEBUG_PRINTLN("[ERROR ap_handler] Secure token didn't match. Please try to send the request again.\n");
-
-		// 	state = STATE_ACCESS_POINT_CONNECT;
-			
-		// 	server->send(400, "text/plain", "Bad request");
-		// }
-	// } else {
-		
-	// 	DEBUG_PRINTLN("[ERROR ap_handler] Secure token not found as parameter. Please try to send the request again.\n");
-
-	// 	state = STATE_ACCESS_POINT_CONNECT;
-		
-	// 	server->send(400, "text/plain", "Bad request");
-
-	// }
 
 
 /*
-*
+* Handler method that handles resources and links that are not defined.
+* It returns 404 error code.
 */
 void ESP8266BootstrapLite::handleNotFound(){
   
@@ -371,7 +359,7 @@ void ESP8266BootstrapLite::handleNotFound(){
 }
 
 /*
-*
+* Starts access point mode on the device, start a server, and registers the handlers for wifi cerdentials and invalid resource accesses.
 */
 ESPBootstrapError ESP8266BootstrapLite::startSoftAP() {
 
@@ -399,7 +387,9 @@ ESPBootstrapError ESP8266BootstrapLite::startSoftAP() {
 }
 
 /*
-*
+* This method stores the Wifi credentials on the Device SPIFFS. It first checks if the ssid is already available.
+* If yes then it replaces the password with the new password provided as parameter, otherwise it stores both ssid and password as
+* a new entry.
 */
 void ESP8266BootstrapLite::storeWifiConfInSPIFF(String ssid, String password) const{
 
@@ -460,7 +450,8 @@ void ESP8266BootstrapLite::storeWifiConfInSPIFF(String ssid, String password) co
 }
 
 /*
-*
+* Helper method that attempts to connect to the wifi network using the ssid and password provided as parameters.
+* Return an error in case it fails to connect.
 */
 ESPBootstrapError ESP8266BootstrapLite::connectToWifi(String ssid, String password){
 
@@ -563,7 +554,7 @@ void ESP8266BootstrapLite::setState(ESPBootstrapState state){ this->state = stat
 
 
 /*
-*
+* Helper method that disconnects from the current wifi settings.
 */
 void ESP8266BootstrapLite::teardownWifi(){
 
@@ -580,6 +571,11 @@ void ESP8266BootstrapLite::teardownWifi(){
 	    delay(BOOTLITE_DELAY_TIME);
   	}
 }
+
+/*
+* The funciton allows user to utilize OTA updates using this library. 
+* This function must be called to use the funcitonality.
+*/
 
 void ESP8266BootstrapLite::enableOTAUpdates(const String apihost, const String port, String userKey){
   
@@ -604,12 +600,16 @@ void ESP8266BootstrapLite::disableOTAUpdates(){
 	_ota_enabled = false;
 }
 
+/*
+* Performs OTA firmware update on the device. 
+*/
 ESPBootstrapError ESP8266BootstrapLite::update(String macAddress){
 
 	ESP8266OTAUpdate ota(_api_host, _api_port, _user_token);
 	OTAError err;
 
 	if(_ota_enabled){
+		
 		err =  ota.performUpdate(macAddress);
 
 		if(err == OTA_NO_ERROR){
