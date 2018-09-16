@@ -32,12 +32,35 @@ If you want to build and run the server without using Docker, then you will need
 
 To compile and use the ESP8266 library follow the below steps
 ```
-- Start the Arduino IDE
-- Find the arduino sketchbook folder by going to 'preferences' in the Arduino IDE (Should be called as 'Arduino' on Mac).
-- create a folder named "Libraries"-  mkdir Libraries
-- Copy paste the folder named ESP8266BootstrapLite from ESPSensorManagementSystem/EspModules of this repo
-- Restart the Arduino IDE.
+* Start the Arduino IDE
+* Find the arduino sketchbook folder by going to 'preferences' in the Arduino IDE (named as 'Arduino' on Mac).
+* Go to the sketchbook folder on terminal and create a directory named "Libraries" using command "mkdir Libraries"
+* Copy paste the folder named ESP8266BootstrapLite from ESPSensorManagementSystem/EspModules of this repo 
+  to the Libraries folder
+* Restart the Arduino IDE.
 ```
+> To know more about the Library go to this link :point_right: ESP8266BootstrapLite
+
+To run and edit Android code do the following
+```
+* Download the Companion App folder in a local dirctory.
+* Start Android studio and import the project.
+* Connect an android device, build the project and run.
+```
+
+> To know more about the companion app go to this link :point_right: Companion App
+
+To build and run the server
+
+```
+* Start docker on your system.
+* Download the folder named OTAServer under Server directory of this repo.
+* Navigate on terminal inside the OTAServer folder.
+* Run docker-compose build
+*     docker-compose up
+* Once the server is started you can hit localhost:3000 to check if a blank page appears.
+```
+> To know more about the server go to this link :point_right: OTAServer
 
 ## Architecture
 
