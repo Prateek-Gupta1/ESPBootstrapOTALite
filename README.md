@@ -24,6 +24,7 @@ To configure and install the companion app
 
 To run the server, you will need to install
 - Docker
+
 If you want to build and run the server without using Docker, then you will need to install
 - NPM
 - MongoDB
