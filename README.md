@@ -63,6 +63,6 @@ To build and run the server
 ```
 > To know more about the server go to this link :point_right: OTAServer
 
-## Architecture
-
+## Architecture Diagram
+![Architecture Diagram](https://github.com/Prateek-Gupta1/ESPSensorManagementSystem/blob/master/ArchitectureDiagram.png)
 ##
