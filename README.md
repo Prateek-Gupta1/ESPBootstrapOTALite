@@ -49,7 +49,7 @@ To run and edit Android code do the following
 * Connect an android device, build the project and run.
 ```
 
-> To know more about the companion app go to this link :point_right: Companion App
+> To know more about the companion app go to this link :point_right: [Companion App](AndroidApp/CompanionApp/README.md)
 
 To build and run the server
 
