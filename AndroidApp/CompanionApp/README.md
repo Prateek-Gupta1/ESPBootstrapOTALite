@@ -24,6 +24,7 @@ The app consists of 5 major componnents that makes the bootstrapping possible. T
  Note: 
  - The QR code should consists of esp device hotspot credentials and mac address, and encoded in a fool proof way. Default is esp8266_ssid#password#mac_esp8266.
  - The app incorporates latest android architecture styles, such as RxJava, Room persistence API, and DataBinding using Architecture  components.
+ - To configure the app, the developers need to make changes in the Commons.java file under espcompanion/utils folder.
  ```
      
 ## Installing and running the app
