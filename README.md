@@ -40,7 +40,7 @@ To compile and use the ESP8266 library follow the below steps
   to the Libraries folder
 * Restart the Arduino IDE.
 ```
-> To know more about the Library go to this link :point_right: ESP8266BootstrapLite
+> To know more about the Library go to this link :point_right: [ESP8266BootstrapLite](ESPModules/README.md)
 
 To run and edit Android code do the following
 ```
