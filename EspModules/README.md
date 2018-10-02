@@ -1,6 +1,6 @@
 # ESP8266BootstrapLite
 
-Esp8266BootstrapLite is a library to securely configure and push firmware updates to the arduino based ESP8266 devices. It's simple to use and modify for any use case.
+Esp8266BootstrapLite is a library to securely configure and push firmware updates to the arduino based ESP8266 devices. It's simple to use, and easy to modify for any use case.
 
 ## Overview
 
@@ -22,6 +22,10 @@ The following gives a brief idea about different elements in each of the compone
 
 |functions|access type|arguments|return type|description|
 |---|---|---|---|---|
+|`storeInfoInSPIFFS`|private|key, info|void|Stores info and key on the SPIFF filesystem of the device.|
+|`getInfoFromSPIFFS`|private|key|String|Retrieves info stored on the SPIFF filesystem of the device based on the key.|
+|`update`|private|deviceId|OTAError|A helper function that performs firmware update|
+|`getDeviceIdentityFromServer`|private|macAddress, resourceUri|String|A helper function that fetches device identity from the server based on its mac address|
 |`begin`|public|none|void| It sets up the serial monior, checks if SPIFFS can be initialised and set the initial state of the library.|
 |`end`|public|reboot|void|shutdown the wifi and reboots the device if the parameter passed is true.|
 |`bootstrap`|public|none|ESPBootstrapError|This is the only function that user needs to call. It starts hotspot mode, accepts connections to configure the device, and connects to wifi by maintaining an internal state.|
@@ -33,7 +37,6 @@ The following gives a brief idea about different elements in each of the compone
 |`enableOTAUpdates`|public|apihost, port, userToken|void|This function must be called to enable OTA updates from the library. It takes 'apihost name' that could be ip address or domain name, an optional 'port' and a 'userToken' that authenticates the request to the server.|
 |`disableOTAUpdates`|public|none|void|Disables the OTA update functionality.|
 |`update`|public|macaddress|ESPBootstrapError|Performs the firmware update on the device.|
-
 
 
 ### OTAUpdate.h
