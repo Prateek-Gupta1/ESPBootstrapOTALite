@@ -8,7 +8,7 @@ Often vendors of inexpensive micro-controllers configure their devices with defa
 
 The library itself consists of 2 components. 
 - ESP8266BootstrapLite
-- OTAUpdate
+- ESP8266OTAUpdate
 
 ESP8266BootstrapLite handles the configurtations part, i.e. passing local network credentials and user token. However, it also incorporates OTAUpdate library to facilitate firmware updates with a single call of function.
 
@@ -18,10 +18,26 @@ OTAUpdate component handles the firmware update part of the solution by communic
 
 The following gives a brief idea about different elements in each of the component of this library.
 
-### Esp8266BootstrapLite.h
+### ESP8266BootstrapLite.h
+
+ ***Member Variables***
+
+|name|type|description|
+|---|---|---|
+|`state`|ESPBootstrapState|The variable holds the internal state of the library while it is in use.|
+|`_wc_attempts`|uint_8|It is the max count of wifi connection attempt allowed.|
+|`_ap_ssid`|char*|starts device hotspot with this ssid.|
+|`_ap_password`|char*|Device's hotspot password.|
+|`_user_token`|String|a token required to authenticate the firmware update request sent by the device to the server.|
+|`_ota_enabled`|bool|flag to enable or disable ota updates from the library.|
+|`_api_host`|String|ip address or base uri of the server from where the device needs to pull new firmware.|
+|`_api_port`|String|port number if the ***_api_host*** is set as ip address or null if it is domain name.|
+
+***Member functions***
 
 |functions|access type|arguments|return type|description|
 |---|---|---|---|---|
+|`ESP8266BootstrapLite`||apSSID, apPassword||Constructor function|
 |`storeInfoInSPIFFS`|private|key, info|void|Stores info and key on the SPIFF filesystem of the device.|
 |`getInfoFromSPIFFS`|private|key|String|Retrieves info stored on the SPIFF filesystem of the device based on the key.|
 |`update`|private|deviceId|OTAError|A helper function that performs firmware update|
@@ -39,8 +55,15 @@ The following gives a brief idea about different elements in each of the compone
 |`update`|public|macaddress|ESPBootstrapError|Performs the firmware update on the device.|
 
 
-### OTAUpdate.h
+### ESP8266OTAUpdate.h
 
+***Member variables***
+
+|name|type|description|
+|---|---|---|
+|`url`|String|base uri of the server from where device needs to pull firmware image.|
+|`user_token`|String|a token required to authenticate the firmware update request sent by the device to the server.|
+|`zombie`|bool|A dummy state to disable OTA update in case an error occurs.|
 
 ## Example usage
 
