@@ -69,8 +69,8 @@ The following gives a brief idea about different elements in each of the compone
 
 |functions|access type|arguments|return type|description|
 |---|---|---|---|---|
-|`ESP8288OTAUpdate`||hostame, port, user_token||contructor|
-|`ESP8266OTAUpdate`||hostname, user_token|||Constructor that takes resource url and user token.|
+|`ESP8288OTAUpdate`||hostame, port, user_token||Constructor|
+|`ESP8266OTAUpdate`||hostname, user_token||Constructor that takes resource url and user token.|
 |`performUpdate`|public|macAddress|OTAError|The function downloads device identity using the macAddress if it is not done. If the identity is already stored on the device then it downloads new firmware and performs update.|
 |`storeInfoInSPIFFS`|private|key, info|void|stores key-info pair in a file in SPIFFS on the device.|
 |`getInfoFromSPIFFS`|private|key|String|gets info from SPIFFS using the key.|
