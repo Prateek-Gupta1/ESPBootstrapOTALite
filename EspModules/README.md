@@ -65,8 +65,22 @@ The following gives a brief idea about different elements in each of the compone
 |`user_token`|String|a token required to authenticate the firmware update request sent by the device to the server.|
 |`zombie`|bool|A dummy state to disable OTA update in case an error occurs.|
 
-## Example usage
+***Member functions***
 
+|functions|access type|arguments|return type|description|
+|---|---|---|---|---|
+|`ESP8288OTAUpdate`||hostame, port, user_token||contructor|
+|`ESP8266OTAUpdate`||hostname, user_token|||Constructor that takes resource url and user token.|
+|`performUpdate`|public|macAddress|OTAError|The function downloads device identity using the macAddress if it is not done. If the identity is already stored on the device then it downloads new firmware and performs update.|
+|`storeInfoInSPIFFS`|private|key, info|void|stores key-info pair in a file in SPIFFS on the device.|
+|`getInfoFromSPIFFS`|private|key|String|gets info from SPIFFS using the key.|
+|`update`|private|deviceId|OTAError|helper function that downloads the firmware and peforms the update.|
+|`getDeviceIdentityFromServer`|private|macAddress, resourceUri|String|fetches the device id from the server and stores it on SPIFFS.|
+
+
+
+## Example usage
+The following is an example that shows the convenience and ease of use of the library.
 ```cpp
   #include <ESP8266BootstrapLite.h>
   #include <ESP8266WiFi.h>
