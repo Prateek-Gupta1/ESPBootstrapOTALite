@@ -77,7 +77,17 @@ The following gives a brief idea about different elements in each of the compone
 |`update`|private|deviceId|OTAError|helper function that downloads the firmware and peforms the update.|
 |`getDeviceIdentityFromServer`|private|macAddress, resourceUri|String|fetches the device id from the server and stores it on SPIFFS.|
 
+## Installing the library
 
+To compile and use the ESP8266 library follow the below steps
+```
+* Start the Arduino IDE
+* Find the arduino sketchbook folder by going to 'preferences' in the Arduino IDE (named as 'Arduino' on Mac).
+* Go to the sketchbook folder on terminal and create a directory named "Libraries" using command "mkdir Libraries"
+* Copy paste the folder named ESP8266BootstrapLite from ESPSensorManagementSystem/EspModules of this repo 
+  to the Libraries folder
+* Restart the Arduino IDE.
+```
 
 ## Example usage
 The following is an example that shows the convenience and ease of use of the library.
