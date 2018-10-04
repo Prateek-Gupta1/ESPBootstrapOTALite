@@ -35,7 +35,11 @@ router.post('/register', UserValidation.validateUserRegistrationData, (req, res,
 router.post('/login', UserValidation.validateUserLoginData, (req, res, next) => {
   manager.login(req.body.email, req.body.password)
     .then((result) => {
-      if (result) { res.status(200).send({ success: 'Login successful.' }); } else { res.status(401).send({ error: 'Invalid credentials.' }); }
+      if (result) { 
+        res.status(200).send({ success: 'Login successful.', token: result._id }); 
+      } else { 
+        res.status(401).send({ error: 'Invalid credentials.' }); 
+      }
     }).catch((err) => {
       // Check if it is validation error
       if (err.name === 'ValidationError') {
