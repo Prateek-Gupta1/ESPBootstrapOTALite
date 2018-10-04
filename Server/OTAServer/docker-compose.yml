@@ -1,0 +1,12 @@
+version: "2"
+services:
+  app:
+    container_name: otaserver
+    build: .
+    ports: [ '3000:3000' ]
+    links: [ mongo ]
+  mongo:
+    container_name: mongodb
+    image: mongo
+    volumes: [ /data/db ]
+    ports: [ '27017:27017' ]
