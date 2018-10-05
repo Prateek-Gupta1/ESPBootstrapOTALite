@@ -61,7 +61,7 @@ To build and run the server
 *     docker-compose up
 * Once the server is started you can hit localhost:3000 to check if a blank page appears.
 ```
-> To know more about the server go to this link :point_right: OTAServer
+> To know more about the server go to this link :point_right: [OTAServer](https://github.com/Prateek-Gupta1/ESPSensorManagementSystem/blob/master/Server/README.md)
 
 ## Architecture Diagram
 ![Architecture Diagram](https://github.com/Prateek-Gupta1/ESPSensorManagementSystem/blob/master/ArchitectureDiagram.png)
