@@ -2,33 +2,28 @@
 #include "ESP8266OTAUpdate.h"
 
 #define GET_DEVICE_INFO_API_ENDPOINT "api/device/mac"
-
 #define UPDATE_API_ENDPOINT "api/firmware/ota/update/device/"
-
 #define DEFAULT_URL "http://localhost:3000/"
-
 #define FILE_DEVICE_IDENTITY "/device.csv"
-
 #define DEVICE_IDENTITY "device"
 
 /*
 *  User should provide all the parameters. "apihost" must be the domain name only. If "port" is not provided, then the "apihost" must 
 *  be complete url of the service. If "userToken" is not passed then the library functions will not work.
 */
-ESP8266OTAUpdate::ESP8266OTAUpdate(String apihost, String port, String userToken) {
-
-	if(apihost != "\0" && apihost.length() != 0) {
+ESP8266OTAUpdate::ESP8266OTAUpdate(String apihost, String port, String userToken){
+	if(apihost != "\0" && apihost.length() != 0){
 		url = apihost;
-		if(port != "\0" && port.length() != 0) {
+		if(port != "\0" && port.length() != 0){
 			url = "http://" + url + ":" + port + "/";
 		}
 	}else{
 		DEBUG_PRINTLN("API host and port not provided. Using default 'http://localhost:3000/' as api host.\n");
 		url = DEFAULT_URL;
 	}
-	if(userToken == "\0" || userToken.length() <= 6) {
+	if(userToken == "\0" || userToken.length() <= 6){
 		zombie = true;
-	} else {
+	}else{
 		user_token = userToken;
 	}
 }
@@ -43,25 +38,25 @@ ESP8266OTAUpdate::ESP8266OTAUpdate(String apihost, String userToken){
 *  Helper function that retreives info from the device's permanent memory i.e. SPIFFS.
 */
 String ESP8266OTAUpdate::getInfoFromSPIFFS(String key){
-	if(zombie) {
+	if(zombie){
 		DEBUG_PRINTLN("Object creation failed as user token was not provded.\n");
 		return "\0";
 	}
 
 	if(SPIFFS.begin() && SPIFFS.exists(FILE_DEVICE_IDENTITY)){
 	  File f = SPIFFS.open(FILE_DEVICE_IDENTITY, "r");
-	  if(f){
-		String key = f.readStringUntil('\n');
-		if(key && key.length() > 0){
-		  String deviceId = f.readStringUntil('\n');
-		  DEBUG_PRINTLN("Device Id stored = %s.\n", &deviceId[0]);
-		  deviceId = deviceId.substring(0, deviceId.length()-1);
-		  if(deviceId != "\0" && deviceId.length() > 6){
-			f.close();
-			return deviceId;
-		  }
-		}
-	  }
+		if(f){
+			String key = f.readStringUntil('\n');
+			if(key && key.length() > 0){
+		  		String deviceId = f.readStringUntil('\n');
+				DEBUG_PRINTLN("Device Id stored = %s.\n", &deviceId[0]);
+		  		deviceId = deviceId.substring(0, deviceId.length()-1);
+		  		if(deviceId != "\0" && deviceId.length() > 6){
+					f.close();
+					return deviceId;
+		  		}
+			}
+	  	}
 	}
 	return "\0";
 }
@@ -70,11 +65,11 @@ String ESP8266OTAUpdate::getInfoFromSPIFFS(String key){
 *  Helper function that stores info on the device's permanent memory i.e. SPIFFS.
 */
 void ESP8266OTAUpdate::storeInfoInSPIFFS(String key, String value){
-	if(zombie) {
+	if(zombie){
 		DEBUG_PRINTLN("Object creation failed as user token was not provded.\n");
-	} else {
+	}else{
 		File f = SPIFFS.open(FILE_DEVICE_IDENTITY, "w+");
-		if(f) {
+		if(f){
 		  f.println(key);
 		  f.println(value);
 		  f.close();
@@ -100,7 +95,7 @@ String ESP8266OTAUpdate::getDeviceIndentityFromServer(String macAddress, String 
 	if(WiFi.status() == WL_CONNECTED){
 		if(resourceUri != NULL && resourceUri.length() != 0){
 			http.begin(url + resourceUri + "?macaddress=" + macAddress);
-		} else {
+		}else{
 			http.begin(url + GET_DEVICE_INFO_API_ENDPOINT + "?macaddress=" + macAddress);
 		}
 
@@ -119,7 +114,7 @@ String ESP8266OTAUpdate::getDeviceIndentityFromServer(String macAddress, String 
 			}
 
 			http.end();
-		} else{
+		}else{
 			DEBUG_PRINTLN("Get response with server code : %d.\n", httpCode);
 		}
 	}
@@ -136,7 +131,7 @@ OTAError ESP8266OTAUpdate::update(String deviceId){
 	http.addHeader("Authentication", user_token);
 	HTTPUpdateResult ret = handleUpdate(http, "\0");
 
-	switch(ret) {
+	switch(ret){
       case HTTP_UPDATE_FAILED:
           DEBUG_PRINTLN("HTTP_UPDATE_FAILD Error (%d): %s.\n", ESPhttpUpdate.getLastError(), 
           						&((ESPhttpUpdate.getLastErrorString().c_str())[0]));
@@ -155,7 +150,7 @@ OTAError ESP8266OTAUpdate::update(String deviceId){
 *  User should call this method to download new firmware.
 */
 OTAError ESP8266OTAUpdate::performUpdate(String macAddress){
-	if(zombie) {
+	if(zombie){
 		DEBUG_PRINTLN("Object creation failed as user token was not provided.\n");
 		return OTA_UNINDENTIFIED_USER;
 	}
@@ -170,10 +165,10 @@ OTAError ESP8266OTAUpdate::performUpdate(String macAddress){
 
 		deviceId = getDeviceIndentityFromServer(macAddress, GET_DEVICE_INFO_API_ENDPOINT);
 
-		if(deviceId == NULL) {
+		if(deviceId == NULL){
 			DEBUG_PRINTLN("Device could not be identified.\n");
 			return OTA_UNINDENTIFIED_DEVICE;
-		} else {
+		}else{
 			storeInfoInSPIFFS(DEVICE_IDENTITY, deviceId);
 		}
 	}

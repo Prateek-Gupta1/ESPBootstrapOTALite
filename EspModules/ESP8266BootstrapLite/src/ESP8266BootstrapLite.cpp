@@ -3,12 +3,8 @@
 #include "ESP8266BootstrapLite.h"
 
 #define BOOTLITE_SAVED_NETCONFIGS_FILE "/savednets.csv"
-
 #define BOOTLITE_USER_TOKEN_FILE "/token.csv"
-
 #define BOOTLITE_CONFIG_URI "/configs"
-
-//ESP8266WebServer* server;
 
 /**
 *  Developer must set access point ssid and password. This is required when ESP8266 goes to softAP mode.
@@ -102,8 +98,7 @@ ESPBootstrapError ESP8266BootstrapLite::bootstrap(){
 				server->handleClient(); 
 			}
 			break;
-		//This state is not used yet.
-		case STATE_SLEEP:
+		case STATE_SLEEP: //This state is not in use.  
 			DEBUG_PRINTLN("[Info bootstrap] current state = STATE_SLEEP\n");
 			err = NO_ERROR;
 			break;
@@ -172,14 +167,14 @@ ESPBootstrapError ESP8266BootstrapLite::attemptConnectToNearbyWifi(){
 }
 
 
-void ESP8266BootstrapLite::storeUserTokenInSPIFFS(String token) const {
+void ESP8266BootstrapLite::storeUserTokenInSPIFFS(String token) const{
 	if(SPIFFS.begin()){
 		File file = SPIFFS.open(BOOTLITE_USER_TOKEN_FILE, "w");
 		if(file){
 			file.println(token);
 			file.close();
 		}
-	} else {
+	}else{
 		DEBUG_PRINTLN("SPIFFS cannot be initialized.");
 	}
 }
@@ -217,11 +212,11 @@ void ESP8266BootstrapLite::handleConfig(){
 
 	    if(err == NO_ERROR){
 	    	storeWifiConfInSPIFF(ssid, password);
-	    } else {
+	    }else{
 	    	DEBUG_PRINTLN("[ERROR ap_handler] Failed to connect to Wifi with ssid %s.\n", &ssid[0]);
 	    	state = STATE_ACCESS_POINT_CONNECT;
 	    }
-	 } else {
+	 }else{
 	 	DEBUG_PRINTLN("[ERROR ap_handler] ssid or password field not found.\n");
 	 	state = STATE_ACCESS_POINT_CONNECT;
 	 	server->send(400, "text/plain", "Bad request");
@@ -244,7 +239,7 @@ void ESP8266BootstrapLite::handleNotFound(){
   message += server->args();
   message += "\n";
 
-  for( uint8_t i = 0; i < server->args(); i++ ) {
+  for( uint8_t i = 0; i < server->args(); i++ ){
     message += " " + server->argName ( i ) + ": " + server->arg ( i ) + "\n";
   }
   server->send ( 404, "text/plain", message );
@@ -253,7 +248,7 @@ void ESP8266BootstrapLite::handleNotFound(){
 /*
 * Starts access point mode on the device, start a server, and registers the handlers for wifi cerdentials and invalid resource accesses.
 */
-ESPBootstrapError ESP8266BootstrapLite::startSoftAP() {
+ESPBootstrapError ESP8266BootstrapLite::startSoftAP(){
 	DEBUG_PRINTLN("[INFO soft_ap] Starting Access point mode.\n");
 	state = STATE_ACCESS_POINT_ACTIVE;
 	teardownWifi();
@@ -301,10 +296,10 @@ void ESP8266BootstrapLite::storeWifiConfInSPIFF(String ssid, String password) co
 		  }else{
 			DEBUG_PRINTLN("[INFO store_wifi] File error. Cannot store the Wifi credentials.\n");
 		  }
-	  } else{
+	  }else{
 		DEBUG_PRINTLN("[INFO store_wifi] Config file not found.\n");
 	  }
-	} else {
+	}else{
 		DEBUG_PRINTLN("[INFO store_wifi] SPIFFS did not mount correctly. Cannot store the Wifi credentials.\n");
 	}
 }
@@ -325,11 +320,11 @@ ESPBootstrapError ESP8266BootstrapLite::connectToWifi(String ssid, String passwo
 	DEBUG_PRINTLN("[INFO wifi_connect] Connecting to Wifi network with ssid = %s.\n", &ssid[0]);
 
 	while(WiFi.status() != WL_CONNECTED){
-		bool _connected = false;
+		bool connected = false;
 		delay(BOOTLITE_DELAY_TIME * 5);
 		switch(WiFi.status()){
 			case WL_CONNECTED: 
-				_connected = true;
+				connected = true;
 				break;
 			case WL_NO_SSID_AVAIL:
 				DEBUG_PRINTLN("[ERROR wifi_connect] No SSID available. Please try again.\n");
@@ -347,8 +342,7 @@ ESPBootstrapError ESP8266BootstrapLite::connectToWifi(String ssid, String passwo
 				DEBUG_PRINTLN(".");
 				break;
 		}
-
-		if(_connected) break;
+		if(connected) break;
 	}
 
 	DEBUG_PRINTLN("[INFO wifi_connect] Connection successful.\n");
@@ -356,18 +350,6 @@ ESPBootstrapError ESP8266BootstrapLite::connectToWifi(String ssid, String passwo
 	state = STATE_WIFI_ACTIVE;
 	return NO_ERROR;
 }
-
-
-/*
-*
-*/
-//char* ESP8266BootstrapLite::getApSSID() const{ return _ap_ssid; }
-	
-/*
-*
-*/	
-//char* ESP8266BootstrapLite::getApPassword() const{ return _ap_password; }
-
 
 /*
 *
@@ -403,7 +385,7 @@ void ESP8266BootstrapLite::enableOTAUpdates(const String apihost, const String p
  	DEBUG_PRINTLN("[INFO OTA update] Enabling OTA update for the device.\n");
  	_ota_enabled = true;
 
- 	if( userKey == "\0" || userKey.length() <= 6) {
+ 	if( userKey == "\0" || userKey.length() <= 6){
  		userKey = getUserTokenFromSPIFFS();
  	}
 
