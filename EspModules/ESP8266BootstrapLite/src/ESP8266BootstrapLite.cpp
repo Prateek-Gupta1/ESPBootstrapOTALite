@@ -413,7 +413,6 @@ ESPBootstrapError ESP8266BootstrapLite::update(String macAddress){
 			return NO_ERROR;
 		}
 	}
-
 	DEBUG_PRINTLN("[INFO OTA update] OTA update was disabled.");
 	return ERROR_OTA_UPDATE_FAILED;
 }
