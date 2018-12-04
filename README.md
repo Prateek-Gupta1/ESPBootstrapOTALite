@@ -1,5 +1,5 @@
-# ESPSensorManagementSystem
-A sensor management solution that allows developers to get started with ESP8266 devices for personal and professional use.
+# ESPBootstrapOTALite Framework
+A simple and easy to use bootstrapping and OTA upadate solution that allows developers to get started with ESP8266 devices for personal and professional use.
 
 ## Get started with an end-to-end IoT solution for Arduino based wifi enabled microcontrollers
 Firmware engineers and IoT enthusiasts often find it difficult to develop an infrastructure to manage their IoT devices and the data flow 
@@ -7,15 +7,13 @@ in the network. This project is an effort to provide an extensible and secure ba
 corporations to setup a sensor management system with minimum efforts. This project is a prototype implementation developed to manage 
 ESP8266 wifi micro-chip, however, the server and the mobile app could be tailored to handle any Wifi enabled micro controller and sensors.
 
-## Overview
-The entire solution is divided into two distinguished projects.
-- **Project A:** An *ESP8266 Sensor Management library* and the corresponding *Web server* to configure and manage ESP devices and the sensors attached on them.
-- **Project B:** It consists of an *Android companion app*, a *ESP bootstrap library* and an *Application server* to manage OTA firmware updates of ESPs.
+## Overview 
+The main goal of this project is to provide a secure way to publish over the air firmware updates to a device that is registered in the system. To achieve it, the firmware on the device needs to use the open source library provided for its architecture, for now it is only availble for ESP8266 based devices, and user is required to host the node.js based server on internet or local network. 
 
-## About Project B 
-The main goal of this project is to provide a secure way to publish over the air firmware updates to a device that is registered in the system. To achieve it, the firmware on the device needs to use the open source library provided for its architecture, for now it is only availble for ESP8266 based devices, and user is required to host the node.js based server on internet or local network. The library will handle the downloading and flashing of the new firmware, however, user needs to publish the new firmware for the registered device on the system. The solution takes care of the security of both the device and the node.js server. Another feature embedded in project B is bootstrapping a new ESP device. Vendors usually provide a default password to the device's acess point mode, which renders the device vulnerable till the user changes those credentials. Our idea here is to allow vendors to provide credentials as QR code, the companion Android app can then read the QR code, connect to the device and the user can pass local network credentials using the companion app on to the device. We have provided a library for ESP8266 to make it easier for the vendors to embed the functionality with minimum efforts.
+The library will handle the downloading and flashing of the new firmware, however, user needs to publish the new firmware for the registered device on the system. The solution takes care of the security of both the device and the node.js server. Another feature embedded in project B is bootstrapping a new ESP device. Vendors usually provide a default password to the device's acess point mode, which renders the device vulnerable till the user changes those credentials. 
+The idea here is to allow vendors to provide credentials as QR code, the companion Android app can then read the QR code, connect to the device and the user can pass local network credentials using the companion app on to the device. We have provided a library for ESP8266 to make it easier for the vendors to embed the functionality with minimum efforts.
 
-## Pre-requisites for Project B 
+## Pre-requisites
 To compile the ESP8266 library, you will need
 - Arduino IDE
 
@@ -29,7 +27,7 @@ If you want to build and run the server without using Docker, then you will need
 - NPM
 - MongoDB
 
-## Getting started with Project B
+## Getting started
 
 To compile and use the ESP8266 library follow the below steps
 ```
