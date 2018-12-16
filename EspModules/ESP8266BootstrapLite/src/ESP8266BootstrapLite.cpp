@@ -277,12 +277,12 @@ void ESP8266BootstrapLite::storeWifiConfInSPIFF(String ssid, String password) co
 			bool found = false;
 			while(f.available()){
 			  if(ssid == f.readStringUntil('\n')){
-				f.println(password);
-				DEBUG_PRINTLN("[INFO store_wifi] SSID %s already exists. Overwriting password for ssid.\n", &ssid[0]);
-				found = true;
-				break;
+					f.println(password);
+					DEBUG_PRINTLN("[INFO store_wifi] SSID %s already exists. Overwriting password for ssid.\n", &ssid[0]);
+					found = true;
+					break;
 			  }else{
-				String pass = f.readStringUntil('\n');
+					String pass = f.readStringUntil('\n');
 			  }
 			}
 				

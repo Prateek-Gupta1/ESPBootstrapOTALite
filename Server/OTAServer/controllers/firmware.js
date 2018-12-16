@@ -1,7 +1,7 @@
 
 
 const express = require('express');
-
+const path = require('path');
 const router = express.Router();
 const multer = require('multer');
 const mime = require('mime');
@@ -23,10 +23,12 @@ const limits = {
 // Configures where the file is to be stored temporarily
 const storage = multer.diskStorage({
   destination(req, file, callback) {
-    callback(null, 'public/uploads');
+    //console.log(path.resolve(__dirname, 'public/uploads'));
+    callback(null, path.resolve(__basedir, 'public/uploads'));
   },
   filename(req, file, callback) {
     const filename = `${file.fieldname}-${Date.now()}.${mime.getExtension(file.mimetype)}`;
+    console.log(filename);
     callback(null, filename);
   },
 });
@@ -36,6 +38,7 @@ const upload = multer({
   storage,
   limits,
   fileFilter(req, file, cb) {
+    console.log(file.mimetype);
     if (file.mimetype !== 'application/octet-stream') {
       req.fileValidationError = 'Incorrect file type';
       cb(null, false);
@@ -47,22 +50,28 @@ const upload = multer({
 
 router.use(userAuth.authenticate);
 
-router.post('/publish/device/:id', (req, res, next) => {
+router.post('/publish/device', (req, res, next) => {
+  console.log("I am uploading");
   // Upload the file on server and store it temporarily in uploads directory.
   upload(req, res, (err) => {
+    console.log("I am uploading 2");
     // If an error occurs while storing file in uploads folder, then return error.
     if (err) {
+      console.log(err);
       res.status(400).send({ message: err });
       return router;
     }
+    console.log("I am uploading 3");
+    console.log(req);
+    console.log("I am uploading 4");
     const filepath = `public/uploads/${req.file.filename}`;
-    
     // Begin saving firmware info and binary file in MongoDB collection.
     try {
       let imageId = '';
       // Read the binary from temporary location.
+      console.log("reading file" );
       const fmwBinary = fs.readFileSync(filepath);
-
+      console.log("file read");
       // Persist the binary. 
       manager.storeFirmwareImage(fmwBinary)
       .then(id => {
@@ -82,7 +91,7 @@ router.post('/publish/device/:id', (req, res, next) => {
           versionName: req.body.versionName,
           fmwName: req.body.fmwName,
           description: req.body.description,
-          deviceId: req.params.id,
+          deviceId: req.body.deviceId,
           imgId: imageId.id,
         };
 

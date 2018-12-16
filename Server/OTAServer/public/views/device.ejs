@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title> OTA Server </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="../stylesheets/bootstrap.min.css">
+    <script type="text/javascript" src="../javascripts/jquery-1.7.min.js"></script>
+    <script type="text/javascript" src="../javascripts/bootstrap.min.js"></script>
+    </style>
+ </head>
+  <body>
+    <div class="container">
+      
+      <nav class="navbar fixed-top navbar-dark bg-dark">
+         <a class="navbar-brand" href="#">ESP8266BootstrapLite</a>
+         <form class="form-inline my-2 my-lg-0" action="/client/logout">
+            <input type="hidden" name="userid" value="<%=data.info._id%>" />
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Logout</button>
+         </form>
+      </nav>
+
+      <br><br><br>
+      <div class="card-deck">
+         <div class="card">
+            <div class="card-header">
+               <h4>User Information</h4>
+            </div>
+            <div class="card-block"  style="padding:10px">
+               <p class="card-text"> <b>Name:&nbsp; </b><%=data.info.name%></p>
+               <p class="card-text"><b>Email:&nbsp;</b> <%=data.info.email%></p>
+               <p class="card-text"><b>Phone:&nbsp;</b> <%=data.info.phone%></p>
+               <p class="card-text"><b>Access Token:&nbsp;</b> <%=data.info._id%></p>
+            </div>
+         </div>
+         <br><br>
+         <div class="card">
+            <div class="card-header">
+               <h4>Register New Device</h4>
+            </div>
+               <div class="card-block"  style="padding:10px">
+                  <form class="form-signin" action="register/device" method="POST">
+                     <label for="inputName" class="sr-only">Device Name</label>
+                     <input name= "name" type="text" id="inputName" class="form-control" placeholder="Device Name" required autofocus/>
+                     <br>
+                     <label for="inputMac" class="sr-only">MAC Address</label>
+                     <input name="mac_address" type="text" id="inputMac" class="form-control" placeholder="MAC Address" required autofocus/>
+                     <br>
+                     <label for="inputModel" class="sr-only">Model</label>
+                     <input name="modelName" type="text" id="inputModel" class="form-control" placeholder="Make/Model" required autofocus/>
+                     <br>
+                     <label for="inputDesc" class="sr-only">Description</label>
+                     <textarea name="description" id="inputDesc" class="form-control" placeholder="Some information about the device."></textarea>
+                     <br>
+                     <input type="hidden" name="userId" value="<%=data.info._id%>" />
+                     
+                     <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+                  </form>
+               </div>
+            </div>
+      </div>
+      <br><br>
+         <!-- <div class="container"> -->
+            <% for(let i = 0; i < data.devices.length; i = i + 3) {%>
+               <div class="card-deck">
+                  <div class="card">
+                        <div class="card-header">
+                           <h4>Device <%=i+1%></h4>
+                        </div>
+                        <div class="card-body"  style="padding:10px">
+                           <p class="card-text"><b>Device Name:&nbsp;</b><%=data.devices[i].name%></p>
+                           <p class="card-text"><b>MAC Address:&nbsp;</b><%=data.devices[i].mac_address%></p>
+                           <p class="card-text"><b>Model:&nbsp;</b><%=data.devices[i].model%></p>
+                           <p class="card-text"><b>Description:&nbsp;</b><%=data.devices[i].description%></p>
+                           <p class="card-text"><b>Status:&nbsp;</b><%=data.devices[i].status%></p>
+                           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#fmwUpdateModal" data-whatever="<%=data.devices[i]._id%>">Upload Firmware</button>
+                        </div>
+                        <div class="card-footer"> Registered on: 
+                              <small class="text-muted"><%=data.devices[i].registeredOn%></small>
+                        </div>
+                  </div>
+                  <% if( i+1 < data.devices.length) {%>
+                     <div class="card">
+                           <div class="card-header">
+                                 <h4>Device <%=i+2%></h4>
+                           </div>
+                           <div class="card-body"  style="padding:10px">
+                              <p class="card-text"><b>Device Name:&nbsp;</b><%=data.devices[i+1].name%></p>
+                              <p class="card-text"><b>MAC Address:&nbsp;</b><%=data.devices[i+1].mac_address%></p>
+                              <p class="card-text"><b>Model:&nbsp;</b><%=data.devices[i+1].model%></p>
+                              <p class="card-text"><b>Description:&nbsp;</b><%=data.devices[i+1].description%></p>
+                              <p class="card-text"><b>Status:&nbsp;</b><%=data.devices[i+1].status%></p>
+                              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#fmwUpdateModal" data-whatever="<%=data.devices[i+1]._id%>">Upload Firmware</button>
+                           </div>
+                           <div class="card-footer"> Registered on: 
+                                 <small class="text-muted"><%=data.devices[i+1].registeredOn%></small>
+                           </div>
+                     </div>
+                  <% } if (i+2 < data.devices.length) {%>
+                     <div class="card">
+                           <div class="card-header">
+                                 <h4>Device <%=i+3%></h4>
+                           </div>
+                           <div class="card-body"  style="padding:10px">
+                              <p class="card-text"><b>Device Name:&nbsp;</b><%=data.devices[i+2].name%></p>
+                              <p class="card-text"><b>MAC Address:&nbsp;</b><%=data.devices[i+2].mac_address%></p>
+                              <p class="card-text"><b>Model:&nbsp;</b><%=data.devices[i+2].model%></p>
+                              <p class="card-text"><b>Description:&nbsp;</b><%=data.devices[i+2].description%></p>
+                              <p class="card-text"><b>Status:&nbsp;</b><%=data.devices[i+2].status%></p>
+                              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#fmwUpdateModal" data-whatever="<%=data.devices[i+2]._id%>">Upload Firmware</button>
+                           </div>
+                           <div class="card-footer"> Registered on: 
+                              <small class="text-muted"><%=data.devices[i+2].registeredOn%></small>
+                           </div>
+                     </div>
+                     
+                  <% } %>
+               </div>
+               <br><br>
+            <% } %>
+
+            <div class="modal fade" id="fmwUpdateModal" tabindex="-1" role="dialog" aria-labelledby="fmwUploadModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="fmwUploadModalLabel">Upload New Firmware</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form  method="POST" enctype="multipart/form-data" id="fmwData">
+                          <div class="form-group">
+                            <label for="fmw-name" class="col-form-label">Name:</label>
+                            <input type="text" name="fmwName" class="form-control" id="fmw-name">
+                          </div>
+                          <div class="form-group">
+                              <label for="version-name" class="col-form-label">Version:</label>
+                              <input type="text" name="versionName" class="form-control" id="version-name" placeholder="Should be in the format x.x.x, like 1.0.1">
+                           </div>
+                          <div class="form-group">
+                            <label for="description-text" class="col-form-label">Description:</label>
+                            <textarea class="form-control" name="description" id="description-text"></textarea>
+                          </div>
+                          <div class="form-group">
+                              <label for="fmwImage">Firmware Binary File:</label>
+                              <input type="file" class="form-control-file" id="fmwImage" name="firmwareImg">
+                          </div>
+                          <input type="hidden" name="deviceId" value=""/>
+                          <input type="hidden" name="userId" value="<%=data.info._id%>" />
+                          <button type="submit" class="btn btn-primary" id="btnFmwUpload">Upload</button>
+                        </form>
+                      </div>
+                      <!-- <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Upload</button>
+                      </div> -->
+                    </div>
+                  </div>
+                </div>
+                
+         <!-- </div> End inner container  -->
+      <hr>
+      <footer>
+            <p>&copy; Prateek Gupta 2018</p>
+      </footer>
+   </div> <!-- /container -->
+  </body>
+  <script>
+
+     $(document).ready(function(){
+
+        $('#fmwUpdateModal').on('show.bs.modal', function (event) {
+           var button = $(event.relatedTarget) // Button that triggered the modal
+           var id = button.data('whatever') // Extract info from data-* attributes
+           var modal = $(this)
+           modal.find('input[name="deviceId"]').val(id)
+        });
+
+        $('#btnFmwUpload').click(function(event){
+           event.preventDefault();
+
+           var form = $('#fmwData')[0];
+           var data = new FormData(form);
+           $('#btnFmwUpload').prop('disabled', true);
+            console.log(data.userId);
+           $.ajax({
+              type: 'POST',
+               beforeSend: function (xhr) {
+                  xhr.setRequestHeader("Authentication", data.get("userId"))
+               },
+              enctype: 'multipart/form-data',
+              url: 'http://localhost:3000/api/firmware/publish/device',
+              data: data,
+              processData: false,
+              contentType: false,
+              cache: false,
+              timeout: 600000,
+              success: function(data){
+               $('#btnFmwUpload').prop('disabled', false);
+               $('#fmwData')[0].reset();
+               $('#fmwUpdateModal').modal('toggle');
+              },
+              error: function(err){
+               $('#btnFmwUpload').prop('disabled', false);
+               $('#fmwData')[0].reset();
+               alert(err);
+               $('#fmwUpdateModal').modal('toggle');
+              }
+           });
+        })
+     });
+  </script>
+</html>

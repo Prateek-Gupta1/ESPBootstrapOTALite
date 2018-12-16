@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title> OTA Server </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/../stylesheets/bootstrap.min.css">
+    <script type="text/javascript" src="/../javascripts/jquery-1.7.min.js"></script>
+    <script type="text/javascript" src="/../javascripts/bootstrap.min.js"></script>
+    </style>
+ </head>
+  <body>
+    <div class="container">
+    <nav class="navbar fixed-top navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">ESP8266BootstrapLite</a>
+        <form class="form-inline my-2 my-lg-0" action="/client/login" method="POST">
+          <input name="email" class="form-control mr-sm-2" type="text" placeholder="username">
+          <input name="password" class="form-control mr-sm-2" type="password" placeholder="password">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Login</button>
+        </form>
+    </nav>
+    <br><br><br>
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>A Lightweight Setup And Firmware Management Framework for ESP8266</h1>
+        <p>In this project, we designed and implemented an ESP8266 based library and an Android companion app to manage its initial setup, an Over-The-Air (OTA) firmware update wrapper incorporated in the library, and an application server to store and send the firmware images.</p>
+        <p><a class="btn btn-primary btn-lg" href="/client/register" role="button">Register &raquo;</a></p>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-4">
+          <h3>ESP8266BootstrapLite Library</h3>
+          <p>The library is divided into two modules:
+            1) ESP8266BootstrapLite
+            This module manages the configuration of an ESP device i.e. hosting Hotspot, storing credentials, connecting and disconnecting to Wifi.
+            2) ESP8266OTAUpdate 
+            This module handles the connection to the server, downloading new firmware and flashing it on the device
+            </p>
+          <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+        </div>
+        <div class="col-md-4">
+          <h3>Android Companion App</h3>
+          <p>The companion application acts as a bridge between addressing the security bottleneck caused by strong hotspot credentials and making them accessible to the user. The app is designed using the state-of-the-art Android Architecture Components framework which was announced in Google I/O 2017. </p>
+          <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+       </div>
+        <div class="col-md-4">
+          <h3>OTA Server</h3>
+          <p>The Server consists of the Application layer written in Node-Express framework in a RESTful style of the architecture, and the Database layer which is a NoSQL document-based data management system, namely MongoDB.</p>
+          <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+        </div>
+      </div>
+</div>  
+      <hr>
+
+      <footer>
+        <p>&copy; Prateek Gupta 2018</p>
+      </footer>
+    </div> <!-- /container -->
+  </body>
+</html>

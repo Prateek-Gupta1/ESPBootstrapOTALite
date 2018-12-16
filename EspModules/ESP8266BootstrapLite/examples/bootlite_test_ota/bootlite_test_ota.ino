@@ -3,7 +3,7 @@
 
   char* ssid_ap = "espdualmode";
   char* password_ap = "someoneqwerty";
-  String token = "5b529942acce580934e0c397";
+  String token = "5c0f49c748b4aa0014199083";
 
   String ssid_wifi;
   String password_wifi;
@@ -40,10 +40,10 @@
       if(bootLite.getState() == STATE_WIFI_ACTIVE){
         
         Serial.println("Wifi connected");
-        //Serial.println("OTA Successful! yaay!.");
+        Serial.println("OTA Successful! yaay!.");
         delay(5000);
 
-        bootLite.update(WiFi.macAddress());
+        //bootLite.update(WiFi.macAddress());
       
       }
   }

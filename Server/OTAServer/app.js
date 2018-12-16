@@ -14,22 +14,24 @@ const bodyParser = require('body-parser');
 const usersRouter = require('./controllers/users');
 const firmwareRouter = require('./controllers/firmware');
 const deviceRouter = require('./controllers/device');
+const clientRouter = require('./client');
 //const userAuth = require('./middlewares/authentication/userauth');
-
+global.__basedir = __dirname;
 const app = express();
+app.use(express.static(path.join(__dirname, 'public')));
 
-console.log(colors.yellow(path.join(__dirname, 'views')));
+console.log(colors.yellow(path.join(__dirname, 'public/views')));
 // View engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, '/public/views'));
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({limit: "50mb"}));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 //app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({limit: "50mb"}));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.disable('x-powered-by');
 //app.use(bodyParser.json());
 
@@ -38,6 +40,7 @@ app.use('/api/user', usersRouter);
 app.use('/api/firmware', firmwareRouter);
 app.use('/api/device', deviceRouter);
 
+app.use('/client', clientRouter);
 // Redirect all other routes to index.html
 app.use('*', function(req, res){
   res.render('index');
