@@ -13,7 +13,7 @@
     <div class="container">
       
       <nav class="navbar fixed-top navbar-dark bg-dark">
-         <a class="navbar-brand" href="#">ESP8266BootstrapLite</a>
+         <a class="navbar-brand" href="#">ESP8266BootstrapOTALite</a>
          <form class="form-inline my-2 my-lg-0" action="/client/logout">
             <input type="hidden" name="userid" value="<%=data.info._id%>" />
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Logout</button>
@@ -199,6 +199,7 @@
               success: function(data){
                $('#btnFmwUpload').prop('disabled', false);
                $('#fmwData')[0].reset();
+               alert(data.message);
                $('#fmwUpdateModal').modal('toggle');
               },
               error: function(err){

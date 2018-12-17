@@ -23,8 +23,6 @@
     Serial.println("Device mac address: ");
     Serial.println(WiFi.macAddress());
   
-    bool success = bootLite.begin();
-
     bootLite.enableOTAUpdates("\0", "\0", token);
   
     attachInterrupt(digitalPinToInterrupt(RESET_WIFI_BUTTON_PIN), pin_ISR, FALLING);

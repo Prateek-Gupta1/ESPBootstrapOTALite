@@ -54,7 +54,7 @@ class ESP8266BootstrapLite{
 
 	public:
 
-		ESP8266BootstrapLite(char* apSSID, char* apPassword);
+		ESP8266BootstrapLite(char* apSSID, char* apPassword, int resetPin);
 		
 		~ESP8266BootstrapLite(void);
 
@@ -69,14 +69,12 @@ class ESP8266BootstrapLite{
 		ESPBootstrapError startSoftAP();
 
 		ESPBootstrapError connectToWifi(const String ssid, const String password);
-
-		//char* getApSSID() const;
-		
-		//char* getApPassword() const;
 		
 		ESPBootstrapState getState() const;
 		
 		void setState(ESPBootstrapState);
+
+		void setResetPin(int pin);
 
 		void enableOTAUpdates(const String apihost, const String port, String userToken);
 
@@ -108,6 +106,7 @@ class ESP8266BootstrapLite{
 		bool _ota_enabled;
 		String _api_host;
 		String _api_port;
+		int rstPin;
 
 		ESP8266WebServer* server;
 };

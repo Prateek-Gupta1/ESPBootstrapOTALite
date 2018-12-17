@@ -3,7 +3,6 @@ var UserManager = require('../../services/user');
 const manager = new UserManager();
 
 exports.authenticate = function(req, res, next){
-  //console.log(req.headers);
   manager.exists(req.get('Authentication'))
   .then(result => {
     if(result) next();

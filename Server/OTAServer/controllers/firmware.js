@@ -28,7 +28,7 @@ const storage = multer.diskStorage({
   },
   filename(req, file, callback) {
     const filename = `${file.fieldname}-${Date.now()}.${mime.getExtension(file.mimetype)}`;
-    console.log(filename);
+   // console.log(filename);
     callback(null, filename);
   },
 });
@@ -38,10 +38,11 @@ const upload = multer({
   storage,
   limits,
   fileFilter(req, file, cb) {
-    console.log(file.mimetype);
-    if (file.mimetype !== 'application/octet-stream') {
+    //console.log(file);
+    let validMimes = ['application/octet-stream', 'application/macbinary', 'application/mac-binary','application/x-binary','application/x-macbinary']
+    if (validMimes.indexOf(file.mimetype) === -1) {
       req.fileValidationError = 'Incorrect file type';
-      cb(null, false);
+      cb({err: "Incorrect file type"}, false);
     } else {
       cb(null, true);
     }
@@ -51,27 +52,22 @@ const upload = multer({
 router.use(userAuth.authenticate);
 
 router.post('/publish/device', (req, res, next) => {
-  console.log("I am uploading");
   // Upload the file on server and store it temporarily in uploads directory.
   upload(req, res, (err) => {
-    console.log("I am uploading 2");
     // If an error occurs while storing file in uploads folder, then return error.
     if (err) {
-      console.log(err);
       res.status(400).send({ message: err });
       return router;
     }
-    console.log("I am uploading 3");
-    console.log(req);
-    console.log("I am uploading 4");
+   
     const filepath = `public/uploads/${req.file.filename}`;
     // Begin saving firmware info and binary file in MongoDB collection.
     try {
       let imageId = '';
+      
       // Read the binary from temporary location.
-      console.log("reading file" );
       const fmwBinary = fs.readFileSync(filepath);
-      console.log("file read");
+
       // Persist the binary. 
       manager.storeFirmwareImage(fmwBinary)
       .then(id => {

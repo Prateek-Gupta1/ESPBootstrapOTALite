@@ -9,12 +9,14 @@
 /**
 *  Developer must set access point ssid and password. This is required when ESP8266 goes to softAP mode.
 */
-ESP8266BootstrapLite::ESP8266BootstrapLite(char* _ap_ssid, char* _ap_password){
+ESP8266BootstrapLite::ESP8266BootstrapLite(char* _ap_ssid, char* _ap_password, int resetPin){
 	this->_ap_ssid = _ap_ssid;
 	this->_ap_password = _ap_password;
 	server = new ESP8266WebServer(80);
 	state = STATE_READY;
 	_wc_attempts = 3;
+	rstPin = resetPin;
+	pinMode(rstPin, INPUT);
 }
 
 /*
@@ -24,35 +26,35 @@ ESP8266BootstrapLite::~ESP8266BootstrapLite(void){}
 
 
 /*
-* This function initializes Serial, SPIFFS and Debug fcreds.
+* This function initializes Serial, SPIFFS and Checks of.
 */
 bool ESP8266BootstrapLite::begin(){
 	//ToDo : Check available size of SPIFFS
-	//Serial.begin(115200);
 	DEBUG_PRINTLN("[INFO begin] Mounting SPIFFS\n");
-	if(SPIFFS.begin()){
-		DEBUG_PRINTLN("[INFO begin] Checking if configs file exists.\n");
-		if(SPIFFS.exists(BOOTLITE_SAVED_NETCONFIGS_FILE)){
-			File f = SPIFFS.open(BOOTLITE_SAVED_NETCONFIGS_FILE, "r");
-			if(f && f.size() > 0){
-				DEBUG_PRINTLN("[INFO begin] Wifi credentials are available. Will try to connect using these credentials.\n");
-				state = STATE_WIFI_CONNECT;
-				f.close();
-			}else{
-				DEBUG_PRINTLN("[INFO begin] No Wifi credentials are saved yet.\n");
-				state = STATE_ACCESS_POINT_CONNECT;
-			}
-		}else{
-			DEBUG_PRINTLN("[INFO begin] Device booting for the first time. Creating required files to save wifi credentials.\n");
-			File f = SPIFFS.open(BOOTLITE_SAVED_NETCONFIGS_FILE ,"w");
-			state = STATE_ACCESS_POINT_CONNECT;
-			f.close();
-		}
-		return true;
-	}else{
+	if(!SPIFFS.begin()){
 		DEBUG_PRINTLN("[ERROR begin] SPIFFS did not mount.\n");
+		return false;
 	}
-	return false;
+
+	//Create file to store Wifi configurations if it does not exists.
+	if(!SPIFFS.exists(BOOTLITE_SAVED_NETCONFIGS_FILE)){
+		DEBUG_PRINTLN("[INFO begin] Device booting for the first time. Creating required files to save wifi credentials.\n");
+		File f = SPIFFS.open(BOOTLITE_SAVED_NETCONFIGS_FILE ,"w");
+		state = STATE_ACCESS_POINT_CONNECT;
+		f.close();
+	}else{
+		File f = SPIFFS.open(BOOTLITE_SAVED_NETCONFIGS_FILE, "r");
+		if(f && f.size() > 0){
+			DEBUG_PRINTLN("[INFO begin] Wifi credentials are available. Will try to connect using these credentials.\n");
+			state = STATE_WIFI_CONNECT;
+			f.close();
+		}else{
+			DEBUG_PRINTLN("[INFO begin] No Wifi credentials are saved yet.\n");
+			state = STATE_ACCESS_POINT_CONNECT;
+		}
+	}
+	
+	return true;
 }
 
 /*
@@ -79,9 +81,14 @@ ESPBootstrapError ESP8266BootstrapLite::bootstrap(){
 			break;
 		case STATE_WIFI_CONNECT: 
 			DEBUG_PRINTLN("[INFO bootstrap] current state = STATE_WIFI_CONNECT\n");
-			err =  attemptConnectToNearbyWifi(); // ToDo: Create a loop to attempt 3 times if necessary.
-			if( err == ERROR_WIFI_CONNECT ) state = STATE_ACCESS_POINT_CONNECT;
-			//if( err == NO_ERROR ) state = STATE_WIFI_ACTIVE;
+			int val = digitalRead(rstPin);
+			while(val == HIGH && state = STATE_WIFI_CONNECT){
+				delay(500);
+				err =  attemptConnectToNearbyWifi(); // ToDo: Create a loop to attempt 3 times if necessary.
+				if( err == ERROR_WIFI_CONNECT ) DEBUG_PRINTLN("[Info bootstrap] Could not connect to Wifi. Press reset button to start Hotspot\n");
+				val = digitalRead(rstPin);
+			}
+			if(val == LOW) state = STATE_ACCESS_POINT_CONNECT;
 			break;
 		case STATE_WIFI_ACTIVE:
 			DEBUG_PRINTLN("[INFO bootstrap] current state = STATE_WIFI_ACTIVE\n");
@@ -375,6 +382,8 @@ void ESP8266BootstrapLite::teardownWifi(){
 	    delay(BOOTLITE_DELAY_TIME);
   	}
 }
+
+void setResetPin(int pin){ rstPin = pin; }
 
 /*
 * The funciton allows user to utilize OTA updates using this library. 
