@@ -79,7 +79,7 @@ router.post('/publish/device', (req, res, next) => {
         imageId = id;
 
         // Archive the previously active firmware.
-        manager.archivePreviousFirmwareOfDevice(req.params.id);
+        manager.archivePreviousFirmwareOfDevice(req.body.deviceId);
       })
       .then(() => {
         // Extract firmware info.

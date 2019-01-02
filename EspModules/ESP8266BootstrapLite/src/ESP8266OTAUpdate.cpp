@@ -72,6 +72,7 @@ void ESP8266OTAUpdate::storeInfoInSPIFFS(String key, String value){
 		if(f){
 		  f.println(key);
 		  f.println(value);
+		  f.flush();
 		  f.close();
 		}
 	}

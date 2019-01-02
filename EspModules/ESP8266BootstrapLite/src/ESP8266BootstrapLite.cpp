@@ -79,17 +79,18 @@ ESPBootstrapError ESP8266BootstrapLite::bootstrap(){
 			begin();
 			DEBUG_PRINTLN("[INFO bootstrap] current state = STATE_READ\n");
 			break;
-		case STATE_WIFI_CONNECT: 
+		case STATE_WIFI_CONNECT: {
 			DEBUG_PRINTLN("[INFO bootstrap] current state = STATE_WIFI_CONNECT\n");
 			int val = digitalRead(rstPin);
-			while(val == HIGH && state = STATE_WIFI_CONNECT){
-				delay(500);
+			while(val == HIGH && state == STATE_WIFI_CONNECT){
 				err =  attemptConnectToNearbyWifi(); // ToDo: Create a loop to attempt 3 times if necessary.
 				if( err == ERROR_WIFI_CONNECT ) DEBUG_PRINTLN("[Info bootstrap] Could not connect to Wifi. Press reset button to start Hotspot\n");
+				delay(5000);
 				val = digitalRead(rstPin);
 			}
 			if(val == LOW) state = STATE_ACCESS_POINT_CONNECT;
 			break;
+		}
 		case STATE_WIFI_ACTIVE:
 			DEBUG_PRINTLN("[INFO bootstrap] current state = STATE_WIFI_ACTIVE\n");
 			err = NO_ERROR;
@@ -179,6 +180,7 @@ void ESP8266BootstrapLite::storeUserTokenInSPIFFS(String token) const{
 		File file = SPIFFS.open(BOOTLITE_USER_TOKEN_FILE, "w");
 		if(file){
 			file.println(token);
+			file.flush();
 			file.close();
 		}
 	}else{
@@ -298,7 +300,7 @@ void ESP8266BootstrapLite::storeWifiConfInSPIFF(String ssid, String password) co
 			  f.println(password);
 			  DEBUG_PRINTLN("[INFO store_wifi] configuration saved.\n");
 			}
-
+			f.flush();
 			f.close();
 		  }else{
 			DEBUG_PRINTLN("[INFO store_wifi] File error. Cannot store the Wifi credentials.\n");
@@ -383,7 +385,7 @@ void ESP8266BootstrapLite::teardownWifi(){
   	}
 }
 
-void setResetPin(int pin){ rstPin = pin; }
+void ESP8266BootstrapLite::setResetPin(int pin){ rstPin = pin; }
 
 /*
 * The funciton allows user to utilize OTA updates using this library. 

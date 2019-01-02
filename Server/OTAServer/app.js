@@ -18,7 +18,7 @@ const clientRouter = require('./client');
 //const userAuth = require('./middlewares/authentication/userauth');
 global.__basedir = __dirname;
 const app = express();
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/', express.static(path.join(__dirname, 'public')));
 
 console.log(colors.yellow(path.join(__dirname, 'public/views')));
 // View engine setup
